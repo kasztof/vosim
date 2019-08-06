@@ -11,7 +11,7 @@ app = dash.Dash(__name__)
 nodes = [
     {
         'data': {'id': short, 'label': label},
-        'position': {'x': 20*lat, 'y': -20*long}
+        'position': {'x': -10*lat, 'y': 10*long}
     }
     for short, label, long, lat in (
         ('la', 'Los Angeles', 34.03, -118.25),
@@ -45,7 +45,7 @@ edges = [
 nodes2 = [
     {
         'data': {'id': short, 'label': label},
-        'position': {'x': 20*lat, 'y': -20*long}
+        'position': {'x': 10*lat, 'y': -10*long}
     }
     for short, label, long, lat in (
         ('la', 'Los Angeles', 34.03, -118.25),
@@ -105,7 +105,7 @@ app.layout = html.Div([
 
     cyto.Cytoscape(
         id='cytoscape-elements-callbacks',
-        layout={'name': 'circle'},
+        layout={'name': 'circle', 'animate': True},
         stylesheet=default_stylesheet,
         style={'width': '100%', 'height': '450px'},
         elements=edges+nodes
