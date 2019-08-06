@@ -1,69 +1,142 @@
-import os
 import dash
-import dash_core_components as dcc
+import dash_cytoscape as cyto
 import dash_html_components as html
-import networkx as nx
-import plotly.graph_objs as go
+import dash_core_components as dcc
+from pprint import pprint
+from dash.dependencies import Input, Output, State
 
-app = dash.Dash()
+app = dash.Dash(__name__)
 
-if 'DYNO' in os.environ:
-    app_name = os.environ['DASH_APP_NAME']
-else:
-    app_name = 'dash-networkplot'
+
+nodes = [
+    {
+        'data': {'id': short, 'label': label},
+        'position': {'x': 20*lat, 'y': -20*long}
+    }
+    for short, label, long, lat in (
+        ('la', 'Los Angeles', 34.03, -118.25),
+        ('nyc', 'New York', 40.71, -74),
+        ('to', 'Toronto', 43.65, -79.38),
+        ('mtl', 'Montreal', 45.50, -73.57),
+        ('van', 'Vancouver', 49.28, -123.12),
+        ('chi', 'Chicago', 41.88, -87.63),
+        ('bos', 'Boston', 42.36, -71.06),
+        ('hou', 'Houston', 29.76, -95.37)
+    )
+]
+
+edges = [
+    {'data': {'source': source, 'target': target}}
+    for source, target in (
+        ('van', 'la'),
+        ('la', 'chi'),
+        ('hou', 'chi'),
+        ('to', 'mtl'),
+        ('mtl', 'bos'),
+        ('nyc', 'bos'),
+        ('to', 'hou'),
+        ('to', 'nyc'),
+        ('la', 'nyc'),
+        ('nyc', 'bos')
+    )
+]
+
+
+nodes2 = [
+    {
+        'data': {'id': short, 'label': label},
+        'position': {'x': 20*lat, 'y': -20*long}
+    }
+    for short, label, long, lat in (
+        ('la', 'Los Angeles', 34.03, -118.25),
+        ('nyc', 'New York', 40.71, -74),
+        ('to', 'Toronto', 43.65, -79.38),
+        ('mtl', 'Montreal', 45.50, -73.57),
+    )
+]
+
+edges2 = [
+    {'data': {'source': source, 'target': target}}
+    for source, target in (
+        ('nyc', 'la'),
+        ('la', 'to'),
+        ('mtl', 'nyc'),
+    )
+]
+
+all_nodes = [nodes, nodes2]
+all_edges = [edges, edges2]
+
+default_stylesheet = [
+    {
+        'selector': 'node',
+        'style': {
+            'background-color': '#BFD7B5',
+            'label': 'data(label)'
+        }
+    },
+    {
+        'selector': 'edge',
+        'style': {
+            'line-color': '#A3C4BC'
+        }
+    }
+]
+
 
 app.layout = html.Div([
-    html.Div([html.H1("Network Graph")], className="row", style={'textAlign': "center"}),
-    html.Div([dcc.Graph(id="my-graph", )]),
-    html.Div([html.Span("Slide to change No of nodes", style={"text-align": "center", 'padding': 10}, className="row"),
-              dcc.Slider(id="nodes", min=5, max=50, value=30, step=2, updatemode="drag",
-                         marks={5: "5", 10: "10", 20: "20", 30: "30", 40: "40", 50: "50"}, className="row")],
-             style={"display": "block", "margin-left": "auto", "margin-right": "auto", "width": "40%", "padding": 20})
-], className="container")
+    html.Div([
+        html.Button('Add Node', id='btn-add-node', n_clicks_timestamp=0),
+        html.Button('Remove Node', id='btn-remove-node', n_clicks_timestamp=0)
+    ]),
+
+    dcc.Slider(
+        id='my-slider',
+        min=1,
+        max=2,
+        step=1,
+        value=1,
+        marks={
+            1:'1',
+            2:'2',
+        
+        }
+    ),
+
+    cyto.Cytoscape(
+        id='cytoscape-elements-callbacks',
+        layout={'name': 'circle'},
+        stylesheet=default_stylesheet,
+        style={'width': '100%', 'height': '450px'},
+        elements=edges+nodes
+    )
+])
 
 
-@app.callback(
-    dash.dependencies.Output("my-graph", "figure"),
-    [dash.dependencies.Input("nodes", "value")])
-def update_graph(n):
-    G = nx.random_geometric_graph(n, 0.15)
-    pos = nx.get_node_attributes(G, 'pos')
-    dmin = 1
-    ncenter = 0
-    for n in pos:
-        x, y = pos[n]
-        d = (x - 0.5) ** 2 + (y - 0.5) ** 2
-        if d < dmin:
-            ncenter = n
-            dmin = d
-    edge_trace = go.Scatter(x=[], y=[], line={'width': 0.5, 'color': '#888'}, hoverinfo='none', mode='lines')
-    for edge in G.edges():
-        x0, y0 = G.node[edge[0]]['pos']
-        x1, y1 = G.node[edge[1]]['pos']
-        edge_trace['x'] += tuple([x0, x1, None])
-        edge_trace['y'] += tuple([y0, y1, None])
-    node_trace = go.Scatter(x=[], y=[], text=[], mode='markers', hoverinfo='text',
-                            marker={'showscale': True, 'colorscale': 'Jet', 'reversescale': True, 'color': [],
-                                    'size': 10,
-                                    'colorbar': {'thickness': 10, 'title': 'No of Connections', 'xanchor': 'left',
-                                                 'titleside': 'right'},
-                                    'line': {'width': 2}})
-    for node in G.nodes():
-        x, y = G.node[node]['pos']
-        node_trace['x'] += tuple([x])
-        node_trace['y'] += tuple([y])
-    p = nx.single_source_shortest_path_length(G, ncenter)
-    for node, adjacencies in enumerate(G.adjacency()):
-        node_trace['marker']['color'] += tuple([len(adjacencies[1])])
-        node_info = 'Number of connections: ' + str(len(adjacencies[1]))
-        node_trace['text'] += tuple([node_info])
-    figure = {"data": [edge_trace, node_trace],
-              "layout": go.Layout(title='Network Graph With Dash', showlegend=False, hovermode='closest',
-                                  margin={'b': 20, 'l': 5, 'r': 5, 't': 40},
-                                  xaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False},
-                                  yaxis={'showgrid': False, 'zeroline': False, 'showticklabels': False})}
-    return figure
+@app.callback(Output('cytoscape-elements-callbacks', 'elements'),
+              [Input('btn-add-node', 'n_clicks_timestamp'),
+               Input('btn-remove-node', 'n_clicks_timestamp'),
+               Input('my-slider', 'value'),
+               ],
+              [State('cytoscape-elements-callbacks', 'elements')])
+def update_elements(btn_add, btn_remove, my_slider, elements):
+    # If the add button was clicked most recently
+    print(my_slider)
+    # if int(btn_add) > int(btn_remove):
+    #     next_node_idx = len(elements) - len(edges)
 
+    #     # As long as we have not reached the max number of nodes, we add them
+    #     # to the cytoscape elements
+    #     if next_node_idx < len(nodes):
+    #         return edges2 + nodes2
+
+    # # If the remove button was clicked most recently
+    # elif int(btn_remove) > int(btn_add):
+    #     if len(elements) > len(edges):
+    #         return elements[:-1]
+
+    # Neither have been clicked yet (or fallback condition)
+    return all_edges[my_slider-1] + all_nodes[my_slider-1]
 
 
 if __name__ == '__main__':
