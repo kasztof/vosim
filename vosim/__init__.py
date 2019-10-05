@@ -60,6 +60,7 @@ edges2 = [
     for source, target in (
         ('nyc', 'la'),
         ('mtl', 'nyc'),
+        ('mtl', 'to')
     )
 ]
 
