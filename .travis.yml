@@ -5,7 +5,8 @@ addons:
   ssh_known_hosts: 92.222.69.244
 install: 
   - pip --version
-before_script:
+  - git clone --branch=master https://github.com/kasztof/vosim.git kasztof/vosim
+before_install:
   - openssl aes-256-cbc -K $encrypted_8940c4fcba27_key -iv $encrypted_8940c4fcba27_iv
     -in deploy_key.enc -out ./deploy_key -d
   - eval "$(ssh-agent -s)"
@@ -13,6 +14,5 @@ before_script:
   - ssh-add ./deploy_key
   - ssh -i ./deploy_key root@92.222.69.244 pwd
 script:
-  - ssh -i ./deploy_key root@92.222.69.244 cd /var/www/html/vosim
-  - ssh -i ./deploy_key root@92.222.69.244 git pull
-  - ssh -i ./deploy_key root@92.222.69.244 service apache2 restart
+  - ls
+  - pwd
