@@ -5,4 +5,4 @@ before_install:
 - chmod 600 ./deploy_key
 - echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
-- ssh -i ./deploy_key root@138.68.163.126 pwd
+- ssh -i ./deploy_key root@92.222.69.244 pwd
