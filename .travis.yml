@@ -15,4 +15,3 @@ before_install:
   - ssh -i ./deploy_key root@92.222.69.244 pwd
 script:
   - ls
-  - pwd
