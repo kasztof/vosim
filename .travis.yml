@@ -1,15 +1,16 @@
 language: python
 python:
-    - "3.6"
+- "3.6"
 addons:
     ssh_known_hosts: 92.222.69.244
 before_install:
-    - openssl aes-256-cbc -K $encrypted_8940c4fcba27_key -iv $encrypted_8940c4fcba27_iv
-    -in deploy_key.enc -out ./deploy_key -d
-    - eval "$(ssh-agent -s)"
-    - chmod 600 ./deploy_key
-    - ssh-add ./deploy_key
-    - ssh -i ./deploy_key root@92.222.69.244 pwd
+- openssl aes-256-cbc -K $encrypted_8940c4fcba27_key -iv $encrypted_8940c4fcba27_iv
+  -in deploy_key.enc -out ./deploy_key -d
+- eval "$(ssh-agent -s)"
+- chmod 600 ./deploy_key
+- echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+- ssh-add ./deploy_key
+- ssh -i ./deploy_key root@92.222.69.244 pwd
 install: skip
 after_success:
- - echo "Build finished"
+- echo "Build finished"
