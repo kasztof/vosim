@@ -59,7 +59,6 @@ edges2 = [
     {'data': {'source': source, 'target': target}}
     for source, target in (
         ('nyc', 'la'),
-        ('la', 'to'),
         ('mtl', 'nyc'),
     )
 ]
