@@ -2,7 +2,6 @@ import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
-from pprint import pprint
 from dash.dependencies import Input, Output, State
 
 app = dash.Dash(__name__)
@@ -10,49 +9,38 @@ app = dash.Dash(__name__)
 
 nodes = [
     {
-        'data': {'id': short, 'label': label},
-        'position': {'x': -10*lat, 'y': 10*long}
+        'data': {'id': id},
+        'position': {'x': 0, 'y': 0}
     }
-    for short, label, long, lat in (
-        ('la', 'Los Angeles', 34.03, -118.25),
-        ('nyc', 'New York', 40.71, -74),
-        ('to', 'Toronto', 43.65, -79.38),
-        ('mtl', 'Montreal', 45.50, -73.57),
-        ('van', 'Vancouver', 49.28, -123.12),
-        ('chi', 'Chicago', 41.88, -87.63),
-        ('bos', 'Boston', 42.36, -71.06),
-        ('hou', 'Houston', 29.76, -95.37)
+    for id in (
+        1, 2, 3, 4, 5, 6
     )
 ]
 
 edges = [
     {'data': {'source': source, 'target': target}}
     for source, target in (
-        ('van', 'la'),
-        ('nyc', 'bos')
+        (1, 2),
+        (4, 5)
     )
 ]
 
 
 nodes2 = [
     {
-        'data': {'id': short, 'label': label},
-        'position': {'x': 10*lat, 'y': -10*long}
+        'data': {'id': id},
+        'position': {'x': 0, 'y': 0}
     }
-    for short, label, long, lat in (
-        ('la', 'Los Angeles', 34.03, -118.25),
-        ('nyc', 'New York', 40.71, -74),
-        ('to', 'Toronto', 43.65, -79.38),
-        ('mtl', 'Montreal', 45.50, -73.57),
+    for id in (
+        1, 2, 3, 4
     )
 ]
 
 edges2 = [
     {'data': {'source': source, 'target': target}}
     for source, target in (
-        ('nyc', 'la'),
-        ('mtl', 'nyc'),
-        ('mtl', 'to')
+        (2, 3),
+        (1, 2),
     )
 ]
 
@@ -89,9 +77,9 @@ app.layout = html.Div([
         step=1,
         value=1,
         marks={
-            1:'1',
-            2:'2',
-        
+            1: '1',
+            2: '2',
+
         }
     ),
 
@@ -113,7 +101,6 @@ app.layout = html.Div([
               [State('cytoscape-elements-callbacks', 'elements')])
 def update_elements(btn_add, btn_remove, my_slider, elements):
     # If the add button was clicked most recently
-    print(my_slider)
     # if int(btn_add) > int(btn_remove):
     #     next_node_idx = len(elements) - len(edges)
 
@@ -131,7 +118,7 @@ def update_elements(btn_add, btn_remove, my_slider, elements):
     return all_edges[my_slider-1] + all_nodes[my_slider-1]
 
 
-server  = app.server
+server = app.server
 
 if __name__ == '__main__':
     app.run_server(debug=True)
