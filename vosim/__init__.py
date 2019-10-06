@@ -29,14 +29,6 @@ edges = [
     {'data': {'source': source, 'target': target}}
     for source, target in (
         ('van', 'la'),
-        ('la', 'chi'),
-        ('hou', 'chi'),
-        ('to', 'mtl'),
-        ('mtl', 'bos'),
-        ('nyc', 'bos'),
-        ('to', 'hou'),
-        ('to', 'nyc'),
-        ('la', 'nyc'),
         ('nyc', 'bos')
     )
 ]
