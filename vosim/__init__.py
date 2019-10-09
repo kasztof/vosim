@@ -166,7 +166,8 @@ def update_elements(btn_add, btn_remove, my_slider, elements):
     #         return elements[:-1]
 
     # Neither have been clicked yet (or fallback condition)
-    return all_edges[my_slider-1] + all_nodes[my_slider-1]
+
+    return [edges_array[my_slider-1]] + nodes
 
 
 server = app.server
