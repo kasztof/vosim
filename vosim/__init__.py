@@ -1,3 +1,4 @@
+import csv
 import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
@@ -7,15 +8,67 @@ from dash.dependencies import Input, Output, State
 app = dash.Dash(__name__)
 
 
+def get_nodes():
+    nodes = []
+    with open('out.tsv') as tsvfile:
+        reader = csv.reader(tsvfile, delimiter='\t')
+        for row in reader:
+            row = row[0].split()
+            if row[0] not in nodes:
+                nodes.append(row[0])
+            if row[1] not in nodes:
+                nodes.append(row[1])
+    return nodes
+
+
+def get_timestamps():
+    timestamps = {}
+    with open('out.tsv') as tsvfile:
+        reader = csv.reader(tsvfile, delimiter='\t')
+        for row in reader:
+            row = row[0].split()
+            if row[3] not in timestamps:
+                timestamps[row[3]] = [(row[0], row[1])]
+            else:
+                timestamps[row[3]].append((row[0], row[1]))
+    return timestamps
+
+
+nodes_from_file = get_nodes()
+num_of_nodes = len(nodes_from_file)
+
+timestamps = get_timestamps()
+
+nodes_array = []
 nodes = [
     {
         'data': {'id': id},
         'position': {'x': 0, 'y': 0}
     }
     for id in (
-        1, 2, 3, 4, 5, 6
+        nodes_from_file
     )
 ]
+for i in range(len(timestamps)):
+    nodes_array.append(nodes)
+
+edges_array = []
+for key in timestamps:
+    for source, target in timestamps[key]:
+        edges_array.append({
+            'data': {'source': source, 'target': target}
+        })
+
+nodes = [
+    {
+        'data': {'id': id},
+        'position': {'x': 0, 'y': 0}
+    }
+    for id in (
+        nodes_from_file
+    )
+]
+
 
 edges = [
     {'data': {'source': source, 'target': target}}
@@ -47,6 +100,9 @@ edges2 = [
 all_nodes = [nodes, nodes2]
 all_edges = [edges, edges2]
 
+print(nodes)
+print(edges_array + nodes)
+
 default_stylesheet = [
     {
         'selector': 'node',
@@ -73,22 +129,17 @@ app.layout = html.Div([
     dcc.Slider(
         id='my-slider',
         min=1,
-        max=2,
+        max=len(timestamps),
         step=1,
         value=1,
-        marks={
-            1: '1',
-            2: '2',
-
-        }
     ),
 
     cyto.Cytoscape(
         id='cytoscape-elements-callbacks',
-        layout={'name': 'circle', 'animate': True},
+        layout={'name': 'random', 'animate': True},
         stylesheet=default_stylesheet,
         style={'width': '100%', 'height': '450px'},
-        elements=edges+nodes
+        elements=edges_array+nodes
     )
 ])
 
