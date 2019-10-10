@@ -47,15 +47,17 @@ num_of_nodes = len(nodes_from_file)
 timestamps = get_timestamps()
 
 nodes_array = []
+
 nodes = [
     {
-        'data': {'id': id},
+        'data': {'id': id, 'label': id},
         'position': {'x': 0, 'y': 0}
     }
     for id in (
         nodes_from_file
     )
 ]
+
 for i in range(len(timestamps)):
     nodes_array.append(nodes)
 
@@ -63,52 +65,16 @@ edges_array = []
 for key in timestamps:
     for source, target in timestamps[key]:
         edges_array.append({
-            'data': {'source': source, 'target': target}
+            'data': {'source': source, 'target': target, 'id': key}
         })
 
-nodes = [
-    {
-        'data': {'id': id},
-        'position': {'x': 0, 'y': 0}
-    }
-    for id in (
-        nodes_from_file
-    )
-]
+edges_dict = {int(key):[] for key in timestamps.keys()}
+for key in timestamps:
+    for source, target in timestamps[key]:
+        edges_dict[int(key)].append({
+            'data': {'source': source, 'target': target}
+        }) 
 
-
-edges = [
-    {'data': {'source': source, 'target': target}}
-    for source, target in (
-        (1, 2),
-        (4, 5)
-    )
-]
-
-
-nodes2 = [
-    {
-        'data': {'id': id},
-        'position': {'x': 0, 'y': 0}
-    }
-    for id in (
-        1, 2, 3, 4
-    )
-]
-
-edges2 = [
-    {'data': {'source': source, 'target': target}}
-    for source, target in (
-        (2, 3),
-        (1, 2),
-    )
-]
-
-all_nodes = [nodes, nodes2]
-all_edges = [edges, edges2]
-
-print(nodes)
-print(edges_array + nodes)
 
 default_stylesheet = [
     {
@@ -126,6 +92,9 @@ default_stylesheet = [
     }
 ]
 
+marks = {}
+for key in timestamps.keys():
+    marks[int(key)] = str(key)
 
 app.layout = html.Div([
     html.Div([
@@ -135,17 +104,17 @@ app.layout = html.Div([
 
     dcc.Slider(
         id='my-slider',
-        min=1,
-        max=len(timestamps),
-        step=1,
-        value=1,
+        marks=marks,
+        step=None,
+        min=list(marks)[0],
+        max=list(marks)[len(marks)-1]
     ),
 
     cyto.Cytoscape(
         id='cytoscape-elements-callbacks',
-        layout={'name': 'random', 'animate': True},
+        layout={'name': 'circle', 'animate': True},
         stylesheet=default_stylesheet,
-        style={'width': '100%', 'height': '450px'},
+        style={'width': '100%', 'height': '70vh'},
         elements=edges_array+nodes
     )
 ])
@@ -158,23 +127,10 @@ app.layout = html.Div([
                ],
               [State('cytoscape-elements-callbacks', 'elements')])
 def update_elements(btn_add, btn_remove, my_slider, elements):
-    # If the add button was clicked most recently
-    # if int(btn_add) > int(btn_remove):
-    #     next_node_idx = len(elements) - len(edges)
-
-    #     # As long as we have not reached the max number of nodes, we add them
-    #     # to the cytoscape elements
-    #     if next_node_idx < len(nodes):
-    #         return edges2 + nodes2
-
-    # # If the remove button was clicked most recently
-    # elif int(btn_remove) > int(btn_add):
-    #     if len(elements) > len(edges):
-    #         return elements[:-1]
-
-    # Neither have been clicked yet (or fallback condition)
-
-    return [edges_array[my_slider-1]] + nodes
+    if my_slider is not None:
+        return edges_dict[my_slider] + nodes
+    else: 
+        return edges_dict[list(edges_dict.keys())[0]]+ nodes
 
 
 server = app.server
