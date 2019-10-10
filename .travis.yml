@@ -6,6 +6,7 @@ addons:
 install: 
   - pip --version
 before_install:
+  - export TRAVIS_COMMIT_MESSAGE=""
   - openssl aes-256-cbc -K $encrypted_8940c4fcba27_key -iv $encrypted_8940c4fcba27_iv
     -in deploy_key.enc -out ./deploy_key -d
   - eval "$(ssh-agent -s)"
