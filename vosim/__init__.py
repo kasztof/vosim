@@ -10,7 +10,7 @@ app = dash.Dash(__name__)
 
 def get_nodes():
     nodes = []
-    with open('out.tsv') as tsvfile:
+    with open('vosim/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
@@ -23,7 +23,7 @@ def get_nodes():
 
 def get_timestamps():
     timestamps = {}
-    with open('out.tsv') as tsvfile:
+    with open('vosim/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
