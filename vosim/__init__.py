@@ -1,16 +1,23 @@
 import csv
+import os
 import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
+from os.path import join, dirname
+from dotenv import load_dotenv
 
 app = dash.Dash(__name__)
 
+dotenv_path = join(dirname(__file__), '../.env')
+load_dotenv(dotenv_path)
+
+PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 
 def get_nodes():
     nodes = []
-    with open('vosim/out.tsv') as tsvfile:
+    with open(PROJECT_ROOT + '/vosim/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
@@ -23,7 +30,7 @@ def get_nodes():
 
 def get_timestamps():
     timestamps = {}
-    with open('vosim/out.tsv') as tsvfile:
+    with open(PROJECT_ROOT + '/vosim/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
