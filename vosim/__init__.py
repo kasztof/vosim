@@ -97,10 +97,16 @@ for key in timestamps.keys():
     marks[int(key)] = str(key)
 
 app.layout = html.Div([
-    html.Div([
-        html.Button('Add Node', id='btn-add-node', n_clicks_timestamp=0),
-        html.Button('Remove Node', id='btn-remove-node', n_clicks_timestamp=0)
-    ]),
+
+    dcc.Dropdown(
+        id='layout-dropdown',
+        options=[
+            {'label': 'Random', 'value': 'random'},
+            {'label': 'Circle', 'value': 'circle'},
+        ],
+        value='circle',
+        placeholder="Select network layout",
+    ),
 
     dcc.Slider(
         id='my-slider',
@@ -119,14 +125,20 @@ app.layout = html.Div([
     )
 ])
 
+@app.callback(
+    Output('cytoscape-elements-callbacks', 'layout'),
+    [Input('layout-dropdown', 'value')]
+)
+def update_layout(dropdown_value):
+    return {'name': dropdown_value, 'animate': True}
+
 
 @app.callback(Output('cytoscape-elements-callbacks', 'elements'),
-              [Input('btn-add-node', 'n_clicks_timestamp'),
-               Input('btn-remove-node', 'n_clicks_timestamp'),
-               Input('my-slider', 'value'),
+               [
+                   Input('my-slider', 'value'),
                ],
               [State('cytoscape-elements-callbacks', 'elements')])
-def update_elements(btn_add, btn_remove, my_slider, elements):
+def update_elements(my_slider, elements):
     if my_slider is not None:
         return edges_dict[my_slider] + nodes
     else: 
