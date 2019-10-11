@@ -1,6 +1,7 @@
 import csv
 import os
 import json
+import time
 
 import dash
 import dash_cytoscape as cyto
@@ -9,6 +10,8 @@ import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 from os.path import join, dirname
 from dotenv import load_dotenv
+
+from datetime import datetime
 
 app = dash.Dash(__name__)
 
@@ -71,12 +74,17 @@ for key in timestamps:
             'data': {'source': source, 'target': target, 'id': key}
         })
 
-edges_dict = {int(key):[] for key in timestamps.keys()}
+edges_dict = {time.strftime("%Y-%m-%d %H",time.localtime(int(key))):[] for key in timestamps.keys()}
+
 for key in timestamps:
+    dt_object = time.localtime(int(key))
+    period = time.strftime("%Y-%m-%d %H", dt_object)
     for source, target in timestamps[key]:
-        edges_dict[int(key)].append({
+        edges_dict[period].append({
             'data': {'source': source, 'target': target}
         }) 
+
+print(edges_dict)
 
 
 default_stylesheet = [
@@ -89,8 +97,10 @@ default_stylesheet = [
 ]
 
 marks = {}
-for key in timestamps.keys():
-    marks[int(key)] = str(key)
+i = 0
+for key in edges_dict.keys():
+    marks[i] = key
+    i += 1
 
 app.layout = html.Div([
     html.Div([
@@ -127,8 +137,8 @@ app.layout = html.Div([
             id='my-slider',
             marks=marks,
             step=None,
-            min=list(marks)[0],
-            max=list(marks)[len(marks)-1]
+            min=0,
+            max=len(list(marks))-1
         )
     ],
     style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
@@ -156,8 +166,9 @@ def update_layout(dropdown_value):
                ],
               [State('cytoscape-elements-callbacks', 'elements')])
 def update_elements(my_slider, elements):
+    print(edges_dict[list(edges_dict.keys())[0]])
     if my_slider is not None:
-        return edges_dict[my_slider] + nodes
+        return edges_dict[list(edges_dict.keys())[my_slider]] + nodes
     else: 
         return edges_dict[list(edges_dict.keys())[0]]+ nodes
 
