@@ -1,5 +1,7 @@
 import csv
 import os
+import json
+
 import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
@@ -51,7 +53,8 @@ nodes_array = []
 nodes = [
     {
         'data': {'id': id, 'label': id},
-        'position': {'x': 0, 'y': 0}
+        'position': {'x': 0, 'y': 0},
+        'selectable': True
     }
     for id in (
         nodes_from_file
@@ -80,16 +83,9 @@ default_stylesheet = [
     {
         'selector': 'node',
         'style': {
-            'background-color': '#BFD7B5',
             'label': 'data(label)'
         }
     },
-    {
-        'selector': 'edge',
-        'style': {
-            'line-color': '#A3C4BC'
-        }
-    }
 ]
 
 marks = {}
@@ -120,7 +116,8 @@ app.layout = html.Div([
             stylesheet=default_stylesheet,
             style={'width': '100%', 'height': '90vh'},
             elements=edges_array+nodes
-        )
+        ),
+        html.Pre(id='cytoscape-tapNodeData-json')
     ],
     style={'width': '80%', 'display': 'inline-block', 'float': 'right'}
     ),
@@ -137,6 +134,13 @@ app.layout = html.Div([
     style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
     ),
 ])
+
+@app.callback(
+    Output('cytoscape-tapNodeData-json', 'children'),
+    [Input('cytoscape-elements-callbacks', 'tapNodeData')]
+)
+def displayTapNodeData(data):
+    return json.dumps(data, indent=2)
 
 @app.callback(
     Output('cytoscape-elements-callbacks', 'layout'),
