@@ -97,32 +97,45 @@ for key in timestamps.keys():
     marks[int(key)] = str(key)
 
 app.layout = html.Div([
-
-    dcc.Dropdown(
-        id='layout-dropdown',
-        options=[
-            {'label': 'Random', 'value': 'random'},
-            {'label': 'Circle', 'value': 'circle'},
-        ],
-        value='circle',
-        placeholder="Select network layout",
+    html.Div([
+        dcc.Dropdown(
+            id='layout-dropdown',
+            options=[
+                {'label': 'Random', 'value': 'random'},
+                {'label': 'Circle', 'value': 'circle'},
+            ],
+            searchable=False,
+            clearable=False,
+            value='circle',
+            placeholder="Select network layout",
+        ),
+    ],
+    style={'width': '20%', 'display': 'inline-block'}
+    ),
+    
+    html.Div([
+        cyto.Cytoscape(
+            id='cytoscape-elements-callbacks',
+            layout={'name': 'circle', 'animate': True},
+            stylesheet=default_stylesheet,
+            style={'width': '100%', 'height': '90vh'},
+            elements=edges_array+nodes
+        )
+    ],
+    style={'width': '80%', 'display': 'inline-block', 'float': 'right'}
     ),
 
-    dcc.Slider(
-        id='my-slider',
-        marks=marks,
-        step=None,
-        min=list(marks)[0],
-        max=list(marks)[len(marks)-1]
+    html.Div([
+        dcc.Slider(
+            id='my-slider',
+            marks=marks,
+            step=None,
+            min=list(marks)[0],
+            max=list(marks)[len(marks)-1]
+        )
+    ],
+    style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
     ),
-
-    cyto.Cytoscape(
-        id='cytoscape-elements-callbacks',
-        layout={'name': 'circle', 'animate': True},
-        stylesheet=default_stylesheet,
-        style={'width': '100%', 'height': '70vh'},
-        elements=edges_array+nodes
-    )
 ])
 
 @app.callback(
@@ -143,7 +156,6 @@ def update_elements(my_slider, elements):
         return edges_dict[my_slider] + nodes
     else: 
         return edges_dict[list(edges_dict.keys())[0]]+ nodes
-
 
 server = app.server
 
