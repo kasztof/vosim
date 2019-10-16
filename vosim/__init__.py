@@ -14,17 +14,17 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 app = dash.Dash(__name__)
-app.title = 'VOSIM'
+app.title = 'VOSIM' 
 
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
 
-PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
+# PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 
 
 def get_nodes():
     nodes = []
-    with open(PROJECT_ROOT + '/vosim/out.tsv') as tsvfile:
+    with open('vosim/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
@@ -37,7 +37,7 @@ def get_nodes():
 
 def get_timestamps():
     timestamps = {}
-    with open(PROJECT_ROOT + '/vosim/out.tsv') as tsvfile:
+    with open('vosim/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
