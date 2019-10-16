@@ -20,6 +20,7 @@ load_dotenv(dotenv_path)
 
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 
+
 def get_nodes():
     nodes = []
     with open(PROJECT_ROOT + '/vosim/out.tsv') as tsvfile:
@@ -74,7 +75,7 @@ for key in timestamps:
             'data': {'source': source, 'target': target, 'id': key}
         })
 
-edges_dict = {time.strftime("%Y-%m-%d %H",time.localtime(int(key))):[] for key in timestamps.keys()}
+edges_dict = {time.strftime("%Y-%m-%d %H", time.localtime(int(key))): [] for key in timestamps.keys()}
 
 for key in timestamps:
     dt_object = time.localtime(int(key))
@@ -82,10 +83,7 @@ for key in timestamps:
     for source, target in timestamps[key]:
         edges_dict[period].append({
             'data': {'source': source, 'target': target}
-        }) 
-
-print(edges_dict)
-
+        })
 
 default_stylesheet = [
     {
@@ -116,20 +114,20 @@ app.layout = html.Div([
             placeholder="Select network layout",
         ),
     ],
-    style={'width': '20%', 'display': 'inline-block'}
+        style={'width': '20%', 'display': 'inline-block'}
     ),
-    
+
     html.Div([
         cyto.Cytoscape(
             id='cytoscape-elements-callbacks',
             layout={'name': 'circle', 'animate': True},
             stylesheet=default_stylesheet,
-            style={'width': '100%', 'height': '90vh'},
-            elements=edges_array+nodes
+            style={'width': '100%', 'height': '85vh'},
+            elements=edges_array + nodes
         ),
         html.Pre(id='cytoscape-tapNodeData-json')
     ],
-    style={'width': '80%', 'display': 'inline-block', 'float': 'right'}
+        style={'width': '80%', 'display': 'inline-block', 'float': 'right'}
     ),
 
     html.Div([
@@ -138,12 +136,13 @@ app.layout = html.Div([
             marks=marks,
             step=None,
             min=0,
-            max=len(list(marks))-1
+            max=len(list(marks)) - 1
         )
     ],
-    style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
+        style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
     ),
 ])
+
 
 @app.callback(
     Output('cytoscape-tapNodeData-json', 'children'),
@@ -151,6 +150,7 @@ app.layout = html.Div([
 )
 def displayTapNodeData(data):
     return json.dumps(data, indent=2)
+
 
 @app.callback(
     Output('cytoscape-elements-callbacks', 'layout'),
@@ -161,16 +161,16 @@ def update_layout(dropdown_value):
 
 
 @app.callback(Output('cytoscape-elements-callbacks', 'elements'),
-               [
-                   Input('my-slider', 'value'),
-               ],
+              [
+                  Input('my-slider', 'value'),
+              ],
               [State('cytoscape-elements-callbacks', 'elements')])
 def update_elements(my_slider, elements):
-    print(edges_dict[list(edges_dict.keys())[0]])
     if my_slider is not None:
-        return edges_dict[list(edges_dict.keys())[my_slider]] + nodes
-    else: 
-        return edges_dict[list(edges_dict.keys())[0]]+ nodes
+        return edges_array + nodes
+    else:
+        return edges_array + nodes
+
 
 server = app.server
 
