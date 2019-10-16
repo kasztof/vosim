@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 
 app = dash.Dash(__name__)
+app.title = 'VOSIM'
 
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
