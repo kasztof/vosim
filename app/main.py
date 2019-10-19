@@ -2,6 +2,7 @@ import csv
 import os
 import json
 import time
+import flask
 
 import dash
 import dash_cytoscape as cyto
@@ -13,8 +14,14 @@ from dotenv import load_dotenv
 
 from datetime import datetime
 
-app = dash.Dash(__name__)
-app.title = 'VOSIM' 
+# nowe
+flask_app = flask.Flask(__name__)
+app = dash.Dash(__name__, server=flask_app, url_base_pathname='/')
+#
+
+# 
+# app = dash.Dash(__name__)
+# app.title = 'VOSIM' 
 
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
@@ -24,7 +31,7 @@ load_dotenv(dotenv_path)
 
 def get_nodes():
     nodes = []
-    with open('vosim/out.tsv') as tsvfile:
+    with open('/app/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
@@ -37,7 +44,7 @@ def get_nodes():
 
 def get_timestamps():
     timestamps = {}
-    with open('vosim/out.tsv') as tsvfile:
+    with open('/app/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
@@ -176,4 +183,4 @@ def update_elements(my_slider, elements):
 server = app.server
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0')
+    flask_app.run(debug=True, host='0.0.0.0', port=80)

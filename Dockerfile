@@ -1,18 +1,10 @@
-FROM ubuntu:18.10
+FROM tiangolo/uwsgi-nginx-flask:python3.6
+LABEL maintainer="Krzysztof Kaszanek"
 
-RUN apt-get update -y && \
-    apt-get install -y python3 python3-dev python3-pip
-   
-COPY ./requirements.txt /app/requirements.txt
-COPY ./.env /app/.env
+COPY requirements.txt /tmp/
+COPY ./app /app
+RUN cd /app
+RUN ls -l
+RUN pip install -U pip && pip install -r /tmp/requirements.txt
 
-WORKDIR /app
-
-RUN pip3 install -r requirements.txt
-
-COPY . /app
-RUN pwd
-RUN ls -a
-ENTRYPOINT ["python3"]
-
-CMD ["vosim/__init__.py"]
+ENV NGINX_WORKER_PROCESSES auto
