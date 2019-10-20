@@ -5,9 +5,9 @@ ssh root@92.222.69.244 cd /var/www/html/vosim
 ssh root@92.222.69.244 cp /etc/vosim/.env .
 
 app="vosim_app"
-docker stop ${app}
-docker rm ${app}
-docker build -t ${app} .
-docker run -d -p 80:80 \
+ssh root@92.222.69.244 docker stop ${app}
+ssh root@92.222.69.244 docker rm ${app}
+ssh root@92.222.69.244 docker build -t ${app} .
+ssh root@92.222.69.244 docker run -d -p 80:80 \
   --name=${app} \
   -v $PWD/app ${app}
