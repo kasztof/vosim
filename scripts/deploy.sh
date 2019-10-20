@@ -9,4 +9,5 @@ ssh root@92.222.69.244 docker rm vosim_app
 ssh root@92.222.69.244 docker build -t vosim_app .
 ssh root@92.222.69.244 docker run -d -p 80:80 \
   --name=vosim_app \
-  -v $PWD/app vosim_app
+  -v $PWD/app vosim_app \
+  -v $PWD/datasets vosim_datasets

@@ -3,6 +3,9 @@ LABEL maintainer="Krzysztof Kaszanek"
 
 COPY requirements.txt /tmp/
 COPY ./app /app
+COPY ./datasets /datasets
+COPY ./.env .
+
 RUN cd /app
 RUN pip install -U pip && pip install -r /tmp/requirements.txt
 
