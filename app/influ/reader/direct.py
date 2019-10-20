@@ -47,9 +47,7 @@ def _df_to_graph(data: pd.DataFrame, directed: bool = True) -> ig.Graph:
     :return: igraph Graph object
     """
     _from, _to, *_attrs = data.columns
-    print(data)
     shift = int(min(data.min()[:2]))
     edges = list(zip(data[_from].astype(int) - shift, data[_to].astype(int) - shift))
-    print(edges)
     edge_attributes = {attr: data[attr].tolist() for attr in _attrs}
     return ig.Graph(edges=edges, edge_attrs=edge_attributes, directed=directed)

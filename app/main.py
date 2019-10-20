@@ -11,114 +11,58 @@ import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 from os.path import join, dirname
 from dotenv import load_dotenv
+import random
+from influ import reader
+cyto.load_extra_layouts()
 
-from datetime import datetime
-
-# nowe
 flask_app = flask.Flask(__name__)
 app = dash.Dash(__name__, server=flask_app, url_base_pathname='/')
-#
-
-# 
-# app = dash.Dash(__name__)
-# app.title = 'VOSIM' 
 
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
 
-# PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
+PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 PORT = os.environ.get('PORT')
 
-def get_nodes():
-    nodes = []
-    with open('app/out.tsv') as tsvfile:
-        reader = csv.reader(tsvfile, delimiter='\t')
-        for row in reader:
-            row = row[0].split()
-            if row[0] not in nodes:
-                nodes.append(row[0])
-            if row[1] not in nodes:
-                nodes.append(row[1])
-    return nodes
+graph = reader.read_graph(PROJECT_ROOT + '/datasets/extracted/david_copperfield/david_copperfield.csv', 'events')
 
-
-def get_timestamps():
-    timestamps = {}
-    with open('app/out.tsv') as tsvfile:
-        reader = csv.reader(tsvfile, delimiter='\t')
-        for row in reader:
-            row = row[0].split()
-            if row[3] not in timestamps:
-                timestamps[row[3]] = [(row[0], row[1])]
-            else:
-                timestamps[row[3]].append((row[0], row[1]))
-    return timestamps
-
-
-nodes_from_file = get_nodes()
-num_of_nodes = len(nodes_from_file)
-
-timestamps = get_timestamps()
-
-nodes_array = []
+num_of_nodes = len(graph.vs.indices)
 
 nodes = [
     {
-        'data': {'id': id, 'label': id},
-        'position': {'x': 0, 'y': 0},
-        'selectable': True
+        'data': {
+            'id': id,
+            'label': id,
+        },
     }
     for id in (
-        nodes_from_file
+        graph.vs.indices
     )
 ]
 
-for i in range(len(timestamps)):
-    nodes_array.append(nodes)
-
 edges_array = []
-for key in timestamps:
-    for source, target in timestamps[key]:
-        edges_array.append({
-            'data': {'source': source, 'target': target, 'id': key}
-        })
-
-edges_dict = {time.strftime("%Y-%m-%d %H", time.localtime(int(key))): [] for key in timestamps.keys()}
-
-for key in timestamps:
-    dt_object = time.localtime(int(key))
-    period = time.strftime("%Y-%m-%d %H", dt_object)
-    for source, target in timestamps[key]:
-        edges_dict[period].append({
-            'data': {'source': source, 'target': target}
-        })
-
-default_stylesheet = [
-    {
-        'selector': 'node',
-        'style': {
-            'label': 'data(label)'
+for e in graph.es:
+    edges_array.append({
+        'data': {
+            'source': e.tuple[0],
+            'target': e.tuple[1],
         }
-    },
-]
-
-marks = {}
-i = 0
-for key in edges_dict.keys():
-    marks[i] = key
-    i += 1
-
+    })
+        
 app.layout = html.Div([
     html.Div([
         dcc.Dropdown(
             id='layout-dropdown',
             options=[
+                {'label': 'Klay', 'value': 'klay'},
                 {'label': 'Random', 'value': 'random'},
                 {'label': 'Circle', 'value': 'circle'},
+                {'label': 'Cola', 'value': 'cola'},
+                {'label': 'Dagre', 'value': 'dagre'}
             ],
             searchable=False,
             clearable=False,
-            value='circle',
+            value='klay',
             placeholder="Select network layout",
         ),
     ],
@@ -128,9 +72,10 @@ app.layout = html.Div([
     html.Div([
         cyto.Cytoscape(
             id='cytoscape-elements-callbacks',
-            layout={'name': 'circle', 'animate': True},
-            stylesheet=default_stylesheet,
             style={'width': '100%', 'height': '85vh'},
+            layout={
+                'name': 'klay',
+            },
             elements=edges_array + nodes
         ),
         html.Pre(id='cytoscape-tapNodeData-json')
@@ -141,10 +86,9 @@ app.layout = html.Div([
     html.Div([
         dcc.Slider(
             id='my-slider',
-            marks=marks,
-            step=None,
+            step=1,
             min=0,
-            max=len(list(marks)) - 1
+            max=10
         )
     ],
         style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
@@ -167,20 +111,6 @@ def displayTapNodeData(data):
 def update_layout(dropdown_value):
     return {'name': dropdown_value, 'animate': True}
 
-
-@app.callback(Output('cytoscape-elements-callbacks', 'elements'),
-              [
-                  Input('my-slider', 'value'),
-              ],
-              [State('cytoscape-elements-callbacks', 'elements')])
-def update_elements(my_slider, elements):
-    if my_slider is not None:
-        return edges_array + nodes
-    else:
-        return edges_array + nodes
-
-
-server = app.server
 
 if __name__ == '__main__':
     flask_app.run(debug=True, host='0.0.0.0', port=PORT)
