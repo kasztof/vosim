@@ -1,42 +1,41 @@
-import csv
 import os
 import json
-import time
 import flask
 
 import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from os.path import join, dirname
 from dotenv import load_dotenv
-import random
 from influ import reader
-cyto.load_extra_layouts()
 
 flask_app = flask.Flask(__name__)
 app = dash.Dash(__name__, server=flask_app, url_base_pathname='/')
 
 dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
-
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 PORT = os.environ.get('PORT')
 
+with open(PROJECT_ROOT + '/app/styles/style.json', 'r') as f:
+    stylesheet = json.loads(f.read())
+
 graph = reader.read_graph(PROJECT_ROOT + '/datasets/extracted/david_copperfield/david_copperfield.csv', 'events')
 
-num_of_nodes = len(graph.vs.indices)
+cyto.load_extra_layouts()
 
 nodes = [
     {
         'data': {
             'id': id,
             'label': id,
+            'score': degree
         },
     }
-    for id in (
-        graph.vs.indices
+    for id, degree in (
+        zip(graph.vs.indices, graph.vs.degree())
     )
 ]
 
@@ -54,6 +53,7 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='layout-dropdown',
             options=[
+                {'label': 'Cose', 'value': 'cose'},
                 {'label': 'Klay', 'value': 'klay'},
                 {'label': 'Random', 'value': 'random'},
                 {'label': 'Circle', 'value': 'circle'},
@@ -62,7 +62,7 @@ app.layout = html.Div([
             ],
             searchable=False,
             clearable=False,
-            value='klay',
+            value='cose',
             placeholder="Select network layout",
         ),
     ],
@@ -74,9 +74,12 @@ app.layout = html.Div([
             id='cytoscape-elements-callbacks',
             style={'width': '100%', 'height': '85vh'},
             layout={
-                'name': 'klay',
+                'name': 'cose',
+                'randomize': True,
             },
-            elements=edges_array + nodes
+            elements=edges_array + nodes,
+            stylesheet=stylesheet,
+
         ),
         html.Pre(id='cytoscape-tapNodeData-json')
     ],
@@ -113,4 +116,4 @@ def update_layout(dropdown_value):
 
 
 if __name__ == '__main__':
-    flask_app.run(debug=True, host='0.0.0.0', port=PORT)
+    flask_app.run(debug=True, host='0.0.0.0', port=8049)
