@@ -27,11 +27,11 @@ dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
 
 # PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
-
+PORT = os.environ.get('PORT')
 
 def get_nodes():
     nodes = []
-    with open('/app/out.tsv') as tsvfile:
+    with open('app/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
@@ -44,7 +44,7 @@ def get_nodes():
 
 def get_timestamps():
     timestamps = {}
-    with open('/app/out.tsv') as tsvfile:
+    with open('app/out.tsv') as tsvfile:
         reader = csv.reader(tsvfile, delimiter='\t')
         for row in reader:
             row = row[0].split()
@@ -183,4 +183,4 @@ def update_elements(my_slider, elements):
 server = app.server
 
 if __name__ == '__main__':
-    flask_app.run(debug=True, host='0.0.0.0', port=80)
+    flask_app.run(debug=True, host='0.0.0.0', port=8050)
