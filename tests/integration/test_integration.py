@@ -11,7 +11,7 @@ def browser():
     driver.quit()
 
 
-def test_basic_duckduckgo_search(browser):
+def test_page_title(browser):
     url = 'localhost:8050'
     browser.get(url)
     time.sleep(1)

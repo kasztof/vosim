@@ -14,7 +14,7 @@ before_install:
   - ssh-add ./deploy_key
   - ssh -i ./deploy_key root@92.222.69.244 pwd
 script:
-  - python -m pytest -vv
+  - python -m pytest -vv tests/unit
 deploy:
   provider: script
   script: chmod +x ./scripts/deploy.sh && ./scripts/deploy.sh
