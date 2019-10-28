@@ -19,7 +19,6 @@ app = dash.Dash(__name__, server=flask_app, url_base_pathname='/', external_styl
 dotenv_path = join(dirname(__file__), '../../.env')
 load_dotenv(dotenv_path)
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
-print(PROJECT_ROOT)
 PORT = os.environ.get('PORT')
 
 with open(PROJECT_ROOT + '/app/styles/style.json', 'r') as f:
@@ -113,4 +112,4 @@ def update_layout(dropdown_value):
 
 
 if __name__ == '__main__':
-    flask_app.run(debug=True, host='0.0.0.0', port=8049)
+    flask_app.run(debug=True, host='0.0.0.0', port=PORT)
