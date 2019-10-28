@@ -1,24 +1,35 @@
-from typing import Optional
+import io
+import base64
+from app.influ import reader
 
-def get_network(file, file_format):
+
+def get_network(content: str) -> list:
+    content_type, content_string = content.split(',')
+    decoded = base64.b64decode(content_string)
+    string_io = io.StringIO(decoded.decode('utf-8'))
+    # TODO handle file_format (NCOL/events)
+    graph = reader.read_graph(string_io, 'events')
     nodes = [
         {
             'data': {
-                'id': id,
-                'label': id,
+                'id': node_id,
+                'label': node_id,
                 'score': degree
             },
         }
-        for id, degree in (
+        for node_id, degree in (
             zip(graph.vs.indices, graph.vs.degree())
         )
     ]
 
-    edges = []
-    for e in graph.es:
-        edges_array.append({
+    edges = [
+        {
             'data': {
-                'source': e.tuple[0],
-                'target': e.tuple[1],
+                'source': e.source,
+                'target': e.target,
             }
-        })
+        }
+        for e in graph.es
+    ]
+    
+    return nodes + edges

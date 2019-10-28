@@ -1,16 +1,15 @@
 import os
 import json
 import flask
-import base64
 import dash
-import io
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, State
 from os.path import join, dirname
 from dotenv import load_dotenv
-from ..influ import reader
+
+from app.vosim.utils import get_network
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -96,42 +95,11 @@ app.layout = html.Div([
 ])
 
 
-def parse_contents(contents, filename):
-    content_type, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    stringIO = io.StringIO(decoded.decode('utf-8'))
-    graph = reader.read_graph(stringIO, 'events')
-    return graph
-
-
 @app.callback(Output('cytoscape-elements', 'elements'),
-              [Input('upload-data', 'contents')],
-              [State('upload-data', 'filename')])
-def update_output(content, name):
+              [Input('upload-data', 'contents')])
+def update_output(content):
     if content is not None:
-        graph = parse_contents(content, name)
-        nodes = [
-            {
-                'data': {
-                    'id': id,
-                    'label': id,
-                    'score': degree
-                },
-            }
-            for id, degree in (
-                zip(graph.vs.indices, graph.vs.degree())
-            )
-        ]
-    
-        edges_array = []
-        for e in graph.es:
-            edges_array.append({
-                'data': {
-                    'source': e.tuple[0],
-                    'target': e.tuple[1],
-                }
-            })
-        return edges_array + nodes
+        return get_network(content)
     else:
         return []
 
