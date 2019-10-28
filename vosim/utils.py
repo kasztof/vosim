@@ -1,6 +1,6 @@
 import io
 import base64
-from app.influ import reader
+from influ import reader
 
 
 def get_network(content: str) -> list:

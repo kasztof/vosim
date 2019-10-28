@@ -5,23 +5,23 @@ import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 from os.path import join, dirname
 from dotenv import load_dotenv
 
-from app.vosim.utils import get_network
+from vosim.utils import get_network
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 flask_app = flask.Flask(__name__)
 app = dash.Dash(__name__, server=flask_app, url_base_pathname='/', external_stylesheets=external_stylesheets)
 
-dotenv_path = join(dirname(__file__), '../../.env')
+dotenv_path = join(dirname(__file__), '../.env')
 load_dotenv(dotenv_path)
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 PORT = os.environ.get('PORT')
 
-with open(PROJECT_ROOT + '/app/styles/style.json', 'r') as f:
+with open(PROJECT_ROOT + '/vosim/styles/style.json', 'r') as f:
     stylesheet = json.loads(f.read())
 
 cyto.load_extra_layouts()
