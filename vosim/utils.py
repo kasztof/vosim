@@ -1,6 +1,6 @@
 import io
 import base64
-from influ import reader
+from vosim.influ import reader
 
 
 def get_network(content: str, file_format: str = 'events') -> list:

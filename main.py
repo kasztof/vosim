@@ -16,7 +16,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 flask_app = flask.Flask(__name__)
 app = dash.Dash(__name__, server=flask_app, url_base_pathname='/', external_stylesheets=external_stylesheets)
 
-dotenv_path = join(dirname(__file__), '../.env')
+dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 PORT = os.environ.get('PORT')
