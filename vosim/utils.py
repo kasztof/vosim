@@ -3,12 +3,12 @@ import base64
 from influ import reader
 
 
-def get_network(content: str) -> list:
+def get_network(content: str, file_format: str = 'events') -> list:
     content_type, content_string = content.split(',')
     decoded = base64.b64decode(content_string)
     string_io = io.StringIO(decoded.decode('utf-8'))
     # TODO handle file_format (NCOL/events)
-    graph = reader.read_graph(string_io, 'events')
+    graph = reader.read_graph(string_io, file_format)
     nodes = [
         {
             'data': {
