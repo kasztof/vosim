@@ -1,10 +1,18 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+import pytest
+import time
+from selenium.webdriver import Chrome
 
-driver = webdriver.Chrome('./chromedriver')
 
-driver.get('localhost:8050')
+@pytest.fixture
+def browser():
+    driver = Chrome(executable_path='./chromedriver')
+    driver.implicitly_wait(10)
+    yield driver
+    driver.quit()
 
-print(driver.title)
 
-driver.close()
+def test_basic_duckduckgo_search(browser):
+    url = 'localhost:8050'
+    browser.get(url)
+    time.sleep(1)
+    assert browser.title == 'Dash'
