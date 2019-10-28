@@ -1,53 +1,32 @@
 import os
 import json
 import flask
-
 import dash
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from os.path import join, dirname
 from dotenv import load_dotenv
-from influ import reader
+
+from app.vosim.utils import get_network
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 flask_app = flask.Flask(__name__)
-app = dash.Dash(__name__, server=flask_app, url_base_pathname='/')
+app = dash.Dash(__name__, server=flask_app, url_base_pathname='/', external_stylesheets=external_stylesheets)
 
-dotenv_path = join(dirname(__file__), '../.env')
+dotenv_path = join(dirname(__file__), '../../.env')
 load_dotenv(dotenv_path)
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
+print(PROJECT_ROOT)
 PORT = os.environ.get('PORT')
 
 with open(PROJECT_ROOT + '/app/styles/style.json', 'r') as f:
     stylesheet = json.loads(f.read())
 
-graph = reader.read_graph(PROJECT_ROOT + '/datasets/extracted/david_copperfield/david_copperfield.csv', 'events')
-
 cyto.load_extra_layouts()
 
-nodes = [
-    {
-        'data': {
-            'id': id,
-            'label': id,
-            'score': degree
-        },
-    }
-    for id, degree in (
-        zip(graph.vs.indices, graph.vs.degree())
-    )
-]
-
-edges_array = []
-for e in graph.es:
-    edges_array.append({
-        'data': {
-            'source': e.tuple[0],
-            'target': e.tuple[1],
-        }
-    })
-        
 app.layout = html.Div([
     html.Div([
         dcc.Dropdown(
@@ -65,23 +44,40 @@ app.layout = html.Div([
             value='cose',
             placeholder="Select network layout",
         ),
+
+        dcc.Upload(
+            id='upload-data',
+            children=html.Div([
+                html.A('Select Files')
+            ]),
+            style={
+                'width': '100%',
+                'height': '60px',
+                'lineHeight': '60px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '5px',
+                'textAlign': 'center',
+            },
+            multiple=False
+        ),
+        html.Div(id='output-data-upload'),
     ],
         style={'width': '20%', 'display': 'inline-block'}
     ),
 
     html.Div([
         cyto.Cytoscape(
-            id='cytoscape-elements-callbacks',
+            id='cytoscape-elements',
             style={'width': '100%', 'height': '85vh'},
             layout={
                 'name': 'cose',
                 'randomize': True,
             },
-            elements=edges_array + nodes,
+            elements = [],
             stylesheet=stylesheet,
 
         ),
-        html.Pre(id='cytoscape-tapNodeData-json')
     ],
         style={'width': '80%', 'display': 'inline-block', 'float': 'right'}
     ),
@@ -99,16 +95,17 @@ app.layout = html.Div([
 ])
 
 
-@app.callback(
-    Output('cytoscape-tapNodeData-json', 'children'),
-    [Input('cytoscape-elements-callbacks', 'tapNodeData')]
-)
-def displayTapNodeData(data):
-    return json.dumps(data, indent=2)
+@app.callback(Output('cytoscape-elements', 'elements'),
+              [Input('upload-data', 'contents')])
+def update_output(content):
+    if content is not None:
+        return get_network(content)
+    else:
+        return []
 
 
 @app.callback(
-    Output('cytoscape-elements-callbacks', 'layout'),
+    Output('cytoscape-elements', 'layout'),
     [Input('layout-dropdown', 'value')]
 )
 def update_layout(dropdown_value):
