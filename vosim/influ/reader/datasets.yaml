@@ -1,0 +1,33 @@
+manufacturing_emails:
+  name: Manufacturing emails
+  url: http://konect.uni-koblenz.de/networks/radoslaw_email
+  download: http://konect.uni-koblenz.de/downloads/tsv/radoslaw_email.tar.bz2
+  file: out.radoslaw_email_email
+  directed: True
+  edge_attributes:
+    - attr0
+    - timestamp
+  vertex_attributes: []
+
+
+train_bombing:
+  name: Train bombing
+  url: http://konect.uni-koblenz.de/networks/moreno_train
+  download: http://konect.uni-koblenz.de/downloads/tsv/moreno_train.tar.bz2
+  file: out.moreno_train_train
+  directed: False
+  edge_attributes:
+    - type
+  vertex_attributes: []
+
+
+david_copperfield:
+  name: David Copperfield
+  url: http://konect.uni-koblenz.de/networks/adjnoun_adjacency
+  download: http://konect.uni-koblenz.de/downloads/tsv/adjnoun_adjacency.tar.bz2
+  file: out.adjnoun_adjacency_adjacency
+  directed: False
+  edge_attributes: []
+  vertex_attributes:
+    - file: ent.adjnoun_adjacency_adjacency.word.name
+      name: word

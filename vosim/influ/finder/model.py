@@ -57,7 +57,7 @@ def linear_threshold(graph: ig.Graph, initial_ids: List[int], threshold: Optiona
 
         influenced_ids.update(new_influenced)
         i += 1
-    print(influenced_ids)
+
     return influenced_ids
 
 
@@ -80,7 +80,8 @@ def independent_cascade(graph: ig.Graph, initial_ids: List[int], threshold: Opti
     g.vs['influenced'] = False
     g.vs['retired'] = False
     g.vs.select(id_in=initial_ids)['influenced'] = True
-    influenced_ids = set(initial_ids)
+    influenced_ids = initial_ids
+    all_activations = [initial_ids]
 
     new_influenced = initial_ids
     i = 0
@@ -99,11 +100,11 @@ def independent_cascade(graph: ig.Graph, initial_ids: List[int], threshold: Opti
                     new_influenced.append(exposed['id'])
 
             v['retired'] = True
-        influenced_ids.update(new_influenced)
+        influenced_ids = influenced_ids + new_influenced
+        all_activations.append(influenced_ids)
         i += 1
-
-    print('@', end='')
-    return influenced_ids
+    
+    return all_activations
 
 
 def _apply_param(g: ig.Graph, param_name: str, value: Optional[Real] = None) -> None:
