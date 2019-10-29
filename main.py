@@ -73,7 +73,7 @@ app.layout = html.Div([
                 'name': 'cose',
                 'randomize': True,
             },
-            elements = [],
+            elements=[],
             stylesheet=stylesheet,
 
         ),
@@ -86,7 +86,8 @@ app.layout = html.Div([
             id='my-slider',
             step=1,
             min=0,
-            max=10
+            max=3,
+            marks={i: '{}'.format(i) for i in range(4)},
         )
     ],
         style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
@@ -103,12 +104,30 @@ def update_output(content):
         return []
 
 
-@app.callback(
-    Output('cytoscape-elements', 'layout'),
-    [Input('layout-dropdown', 'value')]
-)
+@app.callback(Output('cytoscape-elements', 'layout'),
+              [Input('layout-dropdown', 'value')])
 def update_layout(dropdown_value):
     return {'name': dropdown_value, 'animate': True}
+
+
+@app.callback(Output('cytoscape-elements', 'stylesheet'),
+              [Input('my-slider', 'value')])
+def update_active_nodes(value):
+    if value is not None:
+        with open('tests/test_data/activated_nodes.json') as json_file:
+            data = json.load(json_file)
+            new_styles = [
+                {
+                    'selector': '[label = ' + str(node_id) + ']',
+                    'style': {
+                        'background-color': 'red'
+                    }
+                } for node_id in data[str(value)]
+            ]
+    
+        return stylesheet + new_styles
+    else:
+        return stylesheet
 
 
 if __name__ == '__main__':
