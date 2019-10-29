@@ -23,7 +23,7 @@ def get_model(model: Union[Model, str]):
 
 
 def linear_threshold(graph: ig.Graph, initial_ids: List[int], threshold: Optional[ThresholdV] = None,
-                     depth: Optional[int] = None, random_seed: Optional[int] = None) -> Set[int]:
+                     depth: Optional[int] = None, random_seed: Optional[int] = None) -> List[int]:
     """
     Applies Linear Threshold influence model until no new nodes are influenced in iteration
     or iteration counter exceed depth limit
@@ -39,7 +39,8 @@ def linear_threshold(graph: ig.Graph, initial_ids: List[int], threshold: Optiona
 
     g.vs['influenced'] = False
     g.vs.select(id_in=initial_ids)['influenced'] = True
-    influenced_ids = set(initial_ids)
+    influenced_ids = initial_ids
+    all_activations = [initial_ids]
 
     new_influenced = initial_ids
     i = 0
@@ -55,19 +56,19 @@ def linear_threshold(graph: ig.Graph, initial_ids: List[int], threshold: Optiona
                 v['influenced'] = True
                 new_influenced.append(v['id'])
 
-        influenced_ids.update(new_influenced)
+        influenced_ids = influenced_ids + new_influenced
+        all_activations.append(influenced_ids)
         i += 1
 
-    return influenced_ids
+    return all_activations
 
 
 def independent_cascade(graph: ig.Graph, initial_ids: List[int], threshold: Optional[ThresholdV] = None,
-                        depth: Optional[int] = None, random_seed: Optional[int] = None) -> Set[int]:
+                        depth: Optional[int] = None, random_seed: Optional[int] = None) -> List[int]:
     """
     Applies Independent Cascade influence model until no new nodes are influenced in iteration
     or iteration counter exceed depth limit
     """
-    # print("---Model start---")
     if random_seed is not None:
         random.seed(random_seed)
         initial_ids = sorted(initial_ids)
