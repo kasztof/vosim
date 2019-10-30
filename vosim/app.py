@@ -5,14 +5,11 @@ from os.path import join, dirname
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
-from dash.dependencies import Input, Output
 
 from dotenv import load_dotenv
 
-from influ.finder.model import independent_cascade
-from vosim.utils import get_graph, get_network
-
 from .server import app
+from .callbacks import register_callbacks
 
 DOTENV_PATH = join(dirname(__file__), '../.env')
 load_dotenv(DOTENV_PATH)
@@ -27,6 +24,23 @@ cyto.load_extra_layouts()
 
 app.layout = html.Div([
     html.Div([
+        dcc.Upload(
+            id='upload-data',
+            children=html.Div([
+                html.A('Select File')
+            ]),
+            style={
+                'width': '100%',
+                'height': '60px',
+                'lineHeight': '60px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '5px',
+                'textAlign': 'center',
+            },
+            multiple=False
+        ),
+        
         dcc.Dropdown(
             id='layout-dropdown',
             options=[
@@ -40,29 +54,42 @@ app.layout = html.Div([
             searchable=False,
             clearable=False,
             value='cose',
-            placeholder="Select network layout",
+            placeholder='Select network layout',
         ),
-
-        dcc.Upload(
-            id='upload-data',
-            children=html.Div([
-                html.A('Select Files')
-            ]),
-            style={
-                'width': '100%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center',
-            },
-            multiple=False
+        
+        dcc.Dropdown(
+            id='model-dropdown',
+            options=[
+                {'label': 'Linear Treshold', 'value': 'lintres'},
+                {'label': 'Independent Cascade', 'value': 'indcas'}
+            ],
+            searchable=False,
+            clearable=False,
+            value='indcas',
+            placeholder="Select influence model",
         ),
+        
+        dcc.Input(
+            id='depth-limit',
+            placeholder='Enter depth limit',
+            type='number'
+        ),
+        
+        dcc.Input(
+            id='treshold',
+            placeholder='Enter treshold',
+            type='number',
+            min=0,
+            max=1,
+            step=0.05
+        ),
+        
         html.Button('Start', id='start-button'),
         html.Pre(id='output-activated-nodes'),
         dcc.Store(id='data-file-content'),
         dcc.Store(id='data-activated-nodes'),
+        dcc.Store(id='data-selected-nodes'),
+        dcc.Markdown(id='cytoscape-selectedNodeData-markdown')
     ],
          style={'width': '20%', 'display': 'inline-block'}
     ),
@@ -96,53 +123,4 @@ app.layout = html.Div([
     ),
 ])
 
-
-@app.callback([Output('cytoscape-elements', 'elements'),
-               Output('data-file-content', 'data')],
-              [Input('upload-data', 'contents')])
-def load_network(content):
-    if content is not None:
-        return get_network(content), content
-    return [], None
-
-
-@app.callback([Output('data-activated-nodes', 'data'),
-               Output('slider', 'value'),
-               Output('slider', 'max'),
-               Output('slider', 'marks')],
-              [Input('start-button', 'n_clicks'),
-               Input('data-file-content', 'data')])
-def load_activated_nodes(n_clicks, content):
-    if not n_clicks == 0 and n_clicks is not None:
-        graph = get_graph(content)
-        result = independent_cascade(graph, [1, 2, 3], depth=5, threshold=0.1)
-
-        slider_value = 0
-        slider_max = len(result) - 1
-        slider_marks = {i: '{}'.format(i) for i in range(len(result))}
-
-        return result, slider_value, slider_max, slider_marks
-    return None, 0, 0, {}
-
-
-@app.callback(Output('cytoscape-elements', 'stylesheet'),
-              [Input('slider', 'value'),
-               Input('data-activated-nodes', 'data')])
-def update_active_nodes(value, data):
-    if value is not None:
-        new_styles = [
-            {
-                'selector': '[label = ' + str(node_id) + ']',
-                'style': {
-                    'background-color': 'red'
-                }
-            } for node_id in data[value]
-        ]
-        return STYLESHEET + new_styles
-    return STYLESHEET
-
-
-@app.callback(Output('cytoscape-elements', 'layout'),
-              [Input('layout-dropdown', 'value')])
-def update_layout(dropdown_value):
-    return {'name': dropdown_value, 'animate': True}
+register_callbacks(app, STYLESHEET)
