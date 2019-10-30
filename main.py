@@ -87,7 +87,7 @@ app.layout = html.Div([
 
     html.Div([
         dcc.Slider(
-            id='my-slider',
+            id='slider',
             step=1,
             min=0,
             max=10,
@@ -116,7 +116,7 @@ def update_layout(dropdown_value):
 
 
 @app.callback(Output('cytoscape-elements', 'stylesheet'),
-              [Input('my-slider', 'value'),
+              [Input('slider', 'value'),
                Input('data-activated-nodes', 'data')])
 def update_active_nodes(value, data):
     if value is not None:
@@ -133,14 +133,24 @@ def update_active_nodes(value, data):
         return stylesheet
 
 
-@app.callback(Output('data-activated-nodes', 'data'),
+@app.callback([Output('data-activated-nodes', 'data'),
+               Output('slider', 'value'),
+               Output('slider', 'max'),
+               Output('slider', 'marks')],
               [Input('start-button', 'n_clicks'),
                Input('data-file-content', 'data')])
 def load_activated_nodes(n_clicks, content):
     if not n_clicks == 0 and n_clicks is not None:
         graph = get_graph(content)
         result = independent_cascade(graph, [1, 2, 3], depth=5, threshold=0.1)
-        return result
+        
+        slider_value = 0
+        slider_max = len(result) - 1
+        slider_marks = {i: '{}'.format(i) for i in range(len(result))}
+        
+        return result, slider_value, slider_max, slider_marks
+    else:
+        return None, 0, 0, {}
 
 
 if __name__ == '__main__':
