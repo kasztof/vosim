@@ -9,7 +9,8 @@ from dash.dependencies import Input, Output
 from os.path import join, dirname
 from dotenv import load_dotenv
 
-from vosim.utils import get_network
+from vosim.influ.finder.model import independent_cascade
+from vosim.utils import get_graph, get_network
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -60,7 +61,10 @@ app.layout = html.Div([
             },
             multiple=False
         ),
-        html.Div(id='output-data-upload'),
+        html.Button('Start', id='start-button'),
+        html.Pre(id='output-activated-nodes'),
+        dcc.Store(id='data-file-content'),
+        dcc.Store(id='data-activated-nodes'),
     ],
         style={'width': '20%', 'display': 'inline-block'}
     ),
@@ -86,7 +90,7 @@ app.layout = html.Div([
             id='my-slider',
             step=1,
             min=0,
-            max=3,
+            max=10,
             marks={i: '{}'.format(i) for i in range(4)},
         )
     ],
@@ -95,13 +99,14 @@ app.layout = html.Div([
 ])
 
 
-@app.callback(Output('cytoscape-elements', 'elements'),
+@app.callback([Output('cytoscape-elements', 'elements'),
+               Output('data-file-content', 'data')],
               [Input('upload-data', 'contents')])
 def update_output(content):
     if content is not None:
-        return get_network(content)
+        return get_network(content), content
     else:
-        return []
+        return [], None
 
 
 @app.callback(Output('cytoscape-elements', 'layout'),
@@ -111,23 +116,31 @@ def update_layout(dropdown_value):
 
 
 @app.callback(Output('cytoscape-elements', 'stylesheet'),
-              [Input('my-slider', 'value')])
-def update_active_nodes(value):
+              [Input('my-slider', 'value'),
+               Input('data-activated-nodes', 'data')])
+def update_active_nodes(value, data):
     if value is not None:
-        with open('tests/test_data/activated_nodes.json') as json_file:
-            data = json.load(json_file)
-            new_styles = [
-                {
-                    'selector': '[label = ' + str(node_id) + ']',
-                    'style': {
-                        'background-color': 'red'
-                    }
-                } for node_id in data[str(value)]
-            ]
-    
+        new_styles = [
+            {
+                'selector': '[label = ' + str(node_id) + ']',
+                'style': {
+                    'background-color': 'red'
+                }
+            } for node_id in data[value]
+        ]
         return stylesheet + new_styles
     else:
         return stylesheet
+
+
+@app.callback(Output('data-activated-nodes', 'data'),
+              [Input('start-button', 'n_clicks'),
+               Input('data-file-content', 'data')])
+def load_activated_nodes(n_clicks, content):
+    if not n_clicks == 0 and n_clicks is not None:
+        graph = get_graph(content)
+        result = independent_cascade(graph, [1, 2, 3], depth=5, threshold=0.1)
+        return result
 
 
 if __name__ == '__main__':
