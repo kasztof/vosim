@@ -40,7 +40,7 @@ app.layout = html.Div([
             },
             multiple=False
         ),
-        
+
         dcc.Dropdown(
             id='layout-dropdown',
             options=[
@@ -56,7 +56,7 @@ app.layout = html.Div([
             value='cose',
             placeholder='Select network layout',
         ),
-        
+
         dcc.Dropdown(
             id='model-dropdown',
             options=[
@@ -68,13 +68,13 @@ app.layout = html.Div([
             value='indcas',
             placeholder="Select influence model",
         ),
-        
+
         dcc.Input(
             id='depth-limit',
             placeholder='Enter depth limit',
             type='number'
         ),
-        
+
         dcc.Input(
             id='treshold',
             placeholder='Enter treshold',
@@ -83,15 +83,19 @@ app.layout = html.Div([
             max=1,
             step=0.05
         ),
-        
+
         html.Button('Start', id='start-button'),
         html.Pre(id='output-activated-nodes'),
         dcc.Store(id='data-file-content'),
-        dcc.Store(id='data-activated-nodes'),
         dcc.Store(id='data-selected-nodes'),
-        dcc.Markdown(id='cytoscape-selectedNodeData-markdown')
+        dcc.Loading(
+            children=[
+                dcc.Store(id='data-activated-nodes'),
+            ],
+            style={'position': 'absolute', 'bottom': '60%', 'left': '60%'}
+        ),
     ],
-         style={'width': '20%', 'display': 'inline-block'}
+        style={'width': '20%', 'display': 'inline-block'}
     ),
 
     html.Div([
