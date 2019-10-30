@@ -1,29 +1,27 @@
 import os
 import json
-import flask
-import dash
+from os.path import join, dirname
+
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
-from os.path import join, dirname
+
 from dotenv import load_dotenv
 
-from vosim.influ.finder.model import independent_cascade
+from influ.finder.model import independent_cascade
 from vosim.utils import get_graph, get_network
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+from .server import app
 
-flask_app = flask.Flask(__name__)
-app = dash.Dash(__name__, server=flask_app, url_base_pathname='/', external_stylesheets=external_stylesheets)
+DOTENV_PATH = join(dirname(__file__), '../.env')
+load_dotenv(DOTENV_PATH)
 
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 PORT = os.environ.get('PORT')
 
 with open(PROJECT_ROOT + '/vosim/styles/style.json', 'r') as f:
-    stylesheet = json.loads(f.read())
+    STYLESHEET = json.loads(f.read())
 
 cyto.load_extra_layouts()
 
@@ -66,7 +64,7 @@ app.layout = html.Div([
         dcc.Store(id='data-file-content'),
         dcc.Store(id='data-activated-nodes'),
     ],
-        style={'width': '20%', 'display': 'inline-block'}
+         style={'width': '20%', 'display': 'inline-block'}
     ),
 
     html.Div([
@@ -78,7 +76,7 @@ app.layout = html.Div([
                 'randomize': True,
             },
             elements=[],
-            stylesheet=stylesheet,
+            stylesheet=STYLESHEET,
 
         ),
     ],
@@ -102,17 +100,29 @@ app.layout = html.Div([
 @app.callback([Output('cytoscape-elements', 'elements'),
                Output('data-file-content', 'data')],
               [Input('upload-data', 'contents')])
-def update_output(content):
+def load_network(content):
     if content is not None:
         return get_network(content), content
-    else:
-        return [], None
+    return [], None
 
 
-@app.callback(Output('cytoscape-elements', 'layout'),
-              [Input('layout-dropdown', 'value')])
-def update_layout(dropdown_value):
-    return {'name': dropdown_value, 'animate': True}
+@app.callback([Output('data-activated-nodes', 'data'),
+               Output('slider', 'value'),
+               Output('slider', 'max'),
+               Output('slider', 'marks')],
+              [Input('start-button', 'n_clicks'),
+               Input('data-file-content', 'data')])
+def load_activated_nodes(n_clicks, content):
+    if not n_clicks == 0 and n_clicks is not None:
+        graph = get_graph(content)
+        result = independent_cascade(graph, [1, 2, 3], depth=5, threshold=0.1)
+
+        slider_value = 0
+        slider_max = len(result) - 1
+        slider_marks = {i: '{}'.format(i) for i in range(len(result))}
+
+        return result, slider_value, slider_max, slider_marks
+    return None, 0, 0, {}
 
 
 @app.callback(Output('cytoscape-elements', 'stylesheet'),
@@ -128,30 +138,11 @@ def update_active_nodes(value, data):
                 }
             } for node_id in data[value]
         ]
-        return stylesheet + new_styles
-    else:
-        return stylesheet
+        return STYLESHEET + new_styles
+    return STYLESHEET
 
 
-@app.callback([Output('data-activated-nodes', 'data'),
-               Output('slider', 'value'),
-               Output('slider', 'max'),
-               Output('slider', 'marks')],
-              [Input('start-button', 'n_clicks'),
-               Input('data-file-content', 'data')])
-def load_activated_nodes(n_clicks, content):
-    if not n_clicks == 0 and n_clicks is not None:
-        graph = get_graph(content)
-        result = independent_cascade(graph, [1, 2, 3], depth=5, threshold=0.1)
-        
-        slider_value = 0
-        slider_max = len(result) - 1
-        slider_marks = {i: '{}'.format(i) for i in range(len(result))}
-        
-        return result, slider_value, slider_max, slider_marks
-    else:
-        return None, 0, 0, {}
-
-
-if __name__ == '__main__':
-    flask_app.run(debug=True, host='0.0.0.0', port=PORT)
+@app.callback(Output('cytoscape-elements', 'layout'),
+              [Input('layout-dropdown', 'value')])
+def update_layout(dropdown_value):
+    return {'name': dropdown_value, 'animate': True}

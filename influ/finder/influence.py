@@ -6,7 +6,7 @@ from warnings import warn
 import igraph as ig
 import numpy as np
 
-from vosim.influ.finder.model import ThresholdV, Model, get_model
+from influ.finder.model import ThresholdV, Model, get_model
 
 
 class SeedFinder:
