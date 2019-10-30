@@ -1,4 +1,4 @@
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from influ.finder.model import independent_cascade
 from vosim.utils import get_graph, get_network
 
@@ -16,11 +16,11 @@ def register_callbacks(app, stylesheet):
                    Output('slider', 'value'),
                    Output('slider', 'max'),
                    Output('slider', 'marks')],
-                  [Input('start-button', 'n_clicks'),
-                   Input('data-file-content', 'data'),
-                   Input('depth-limit', 'value'),
-                   Input('treshold', 'value'),
-                   Input('data-selected-nodes', 'data')])
+                  [Input('start-button', 'n_clicks')],
+                  [State('data-file-content', 'data'),
+                   State('depth-limit', 'value'),
+                   State('treshold', 'value'),
+                   State('data-selected-nodes', 'data')])
     def load_activated_nodes(n_clicks, content, depth, treshold, initial_nodes):
         if not n_clicks == 0 and n_clicks is not None and content is not None:
             graph = get_graph(content)
