@@ -1,0 +1,17 @@
+.bottom-slider {
+    width: 90%;
+    display: inline-block;
+    margin-left: 5%;
+}
+
+.network {
+    width: 80%;
+    display: inline-block;
+    float: right;
+}
+
+.left-panel {
+    width: 20%;
+    display: inline-block;
+}
+

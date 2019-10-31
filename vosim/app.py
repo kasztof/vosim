@@ -17,74 +17,87 @@ load_dotenv(DOTENV_PATH)
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
 PORT = os.environ.get('PORT')
 
-with open(PROJECT_ROOT + '/vosim/styles/style.json', 'r') as f:
+with open(PROJECT_ROOT + '/vosim/assets/style.json', 'r') as f:
     STYLESHEET = json.loads(f.read())
 
 cyto.load_extra_layouts()
 
 app.layout = html.Div([
     html.Div([
-        dcc.Upload(
-            id='upload-data',
-            children=html.Div([
-                html.A('Select File')
-            ]),
-            style={
-                'width': '100%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center',
-            },
-            multiple=False
+        dcc.Tabs(
+            id='navigation-tabs',
+            children=[
+                dcc.Tab(
+                    label='Network',
+                    children=[
+                        dcc.Upload(
+                            id='upload-data',
+                            children=html.Div([
+                                html.A('Select File')
+                            ]),
+                            className='upload-panel',
+                            multiple=False
+                        ),
+                    ]
+                ),
+                
+                dcc.Tab(
+                    label='Simulation',
+                    children=[
+                        dcc.Dropdown(
+                            id='layout-dropdown',
+                            options=[
+                                {'label': 'Cose', 'value': 'cose'},
+                                {'label': 'Klay', 'value': 'klay'},
+                                {'label': 'Random', 'value': 'random'},
+                                {'label': 'Circle', 'value': 'circle'},
+                                {'label': 'Cola', 'value': 'cola'},
+                                {'label': 'Dagre', 'value': 'dagre'}
+                            ],
+                            searchable=False,
+                            clearable=False,
+                            value='cose',
+                            placeholder='Select network layout',
+                        ),
+
+                        dcc.Dropdown(
+                            id='model-dropdown',
+                            options=[
+                                {'label': 'Linear Treshold', 'value': 'lintres'},
+                                {'label': 'Independent Cascade', 'value': 'indcas'}
+                            ],
+                            searchable=False,
+                            clearable=False,
+                            value='indcas',
+                            placeholder="Select influence model",
+                        ),
+
+                        dcc.Input(
+                            id='depth-limit',
+                            placeholder='Enter depth limit',
+                            type='number'
+                        ),
+
+                        dcc.Input(
+                            id='treshold',
+                            placeholder='Enter treshold',
+                            type='number',
+                            min=0,
+                            max=1,
+                            step=0.05
+                        ),
+
+                        html.Button('Start', id='start-button'),
+                    ]
+                ),
+                
+                dcc.Tab(
+                    label='Summary',
+                    children=[]
+                )
+            ]
         ),
 
-        dcc.Dropdown(
-            id='layout-dropdown',
-            options=[
-                {'label': 'Cose', 'value': 'cose'},
-                {'label': 'Klay', 'value': 'klay'},
-                {'label': 'Random', 'value': 'random'},
-                {'label': 'Circle', 'value': 'circle'},
-                {'label': 'Cola', 'value': 'cola'},
-                {'label': 'Dagre', 'value': 'dagre'}
-            ],
-            searchable=False,
-            clearable=False,
-            value='cose',
-            placeholder='Select network layout',
-        ),
-
-        dcc.Dropdown(
-            id='model-dropdown',
-            options=[
-                {'label': 'Linear Treshold', 'value': 'lintres'},
-                {'label': 'Independent Cascade', 'value': 'indcas'}
-            ],
-            searchable=False,
-            clearable=False,
-            value='indcas',
-            placeholder="Select influence model",
-        ),
-
-        dcc.Input(
-            id='depth-limit',
-            placeholder='Enter depth limit',
-            type='number'
-        ),
-
-        dcc.Input(
-            id='treshold',
-            placeholder='Enter treshold',
-            type='number',
-            min=0,
-            max=1,
-            step=0.05
-        ),
-
-        html.Button('Start', id='start-button'),
         html.Pre(id='output-activated-nodes'),
         dcc.Store(id='data-file-content'),
         dcc.Store(id='data-selected-nodes'),
@@ -92,10 +105,10 @@ app.layout = html.Div([
             children=[
                 dcc.Store(id='data-activated-nodes'),
             ],
-            style={'position': 'absolute', 'bottom': '60%', 'left': '60%'}
+            className='loading-box'
         ),
     ],
-        style={'width': '20%', 'display': 'inline-block'}
+        className='left-panel'
     ),
 
     html.Div([
@@ -111,7 +124,7 @@ app.layout = html.Div([
 
         ),
     ],
-        style={'width': '80%', 'display': 'inline-block', 'float': 'right'}
+        className='network'
     ),
 
     html.Div([
@@ -123,7 +136,7 @@ app.layout = html.Div([
             marks={i: '{}'.format(i) for i in range(4)},
         )
     ],
-        style={'width': '90%', 'display': 'inline-block', 'margin-left': '5%'}
+        className='bottom-slider'
     ),
 ])
 
