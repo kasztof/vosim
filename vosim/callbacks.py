@@ -60,3 +60,13 @@ def register_callbacks(app, stylesheet):
         if selected_nodes:
             return [int(node['id'])for node in selected_nodes]
         return []
+
+    @app.callback(
+        Output("modal", "is_open"),
+        [Input("open-konect-modal", "n_clicks"), Input("close-konect-modal", "n_clicks")],
+        [State("modal", "is_open")],
+    )
+    def toggle_modal(n1, n2, is_open):
+        if n1 or n2:
+            return not is_open
+        return is_open

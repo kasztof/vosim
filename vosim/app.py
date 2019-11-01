@@ -5,11 +5,13 @@ from os.path import join, dirname
 import dash_cytoscape as cyto
 import dash_html_components as html
 import dash_core_components as dcc
+import dash_bootstrap_components as dbc
 
 from dotenv import load_dotenv
 
 from .server import app
 from .callbacks import register_callbacks
+from .options import layout_options, model_options, konect_options
 
 DOTENV_PATH = join(dirname(__file__), '../.env')
 load_dotenv(DOTENV_PATH)
@@ -24,36 +26,63 @@ cyto.load_extra_layouts()
 
 app.layout = html.Div([
     html.Div([
-        dcc.Tabs(
+        dbc.Tabs(
             id='navigation-tabs',
             children=[
-                dcc.Tab(
+                dbc.Tab(
                     label='Network',
                     children=[
+                        html.H3('Load network'),
+
                         dcc.Upload(
                             id='upload-data',
-                            children=html.Div([
-                                html.A('Select File')
-                            ]),
+                            children=[
+                                dbc.Button(
+                                    'Upload from computer',
+                                    color="primary",
+                                    block=True
+                                ),
+                            ],
                             className='upload-panel',
                             multiple=False
+                        ),
+
+                        dbc.Button(
+                            'Select from KONECT',
+                            id='open-konect-modal',
+                            color="primary",
+                            block=True
+                        ),
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader('Select network from KONECT dataset'),
+                                dbc.ModalBody(
+                                    dcc.Dropdown(
+                                        id='konect-networks-dropdown',
+                                        options=konect_options,
+                                        searchable=False,
+                                        clearable=False,
+                                        placeholder="Select KONECT network",
+                                    ),
+                                ),
+                                dbc.ModalFooter(
+                                    [
+                                        dbc.Button('Close', id='close-konect-modal', color='danger', outline=True),
+                                        dbc.Button('Load', id='load-konect-network', color='primary')
+                                    ]
+                                ),
+                            ],
+                            id="modal",
                         ),
                     ]
                 ),
                 
-                dcc.Tab(
+                dbc.Tab(
                     label='Simulation',
                     children=[
                         dcc.Dropdown(
                             id='layout-dropdown',
-                            options=[
-                                {'label': 'Cose', 'value': 'cose'},
-                                {'label': 'Klay', 'value': 'klay'},
-                                {'label': 'Random', 'value': 'random'},
-                                {'label': 'Circle', 'value': 'circle'},
-                                {'label': 'Cola', 'value': 'cola'},
-                                {'label': 'Dagre', 'value': 'dagre'}
-                            ],
+                            options=layout_options,
                             searchable=False,
                             clearable=False,
                             value='cose',
@@ -62,10 +91,7 @@ app.layout = html.Div([
 
                         dcc.Dropdown(
                             id='model-dropdown',
-                            options=[
-                                {'label': 'Linear Treshold', 'value': 'lintres'},
-                                {'label': 'Independent Cascade', 'value': 'indcas'}
-                            ],
+                            options=model_options,
                             searchable=False,
                             clearable=False,
                             value='indcas',
@@ -87,11 +113,11 @@ app.layout = html.Div([
                             step=0.05
                         ),
 
-                        html.Button('Start', id='start-button'),
+                        dbc.Button('Start', id='start-button'),
                     ]
                 ),
                 
-                dcc.Tab(
+                dbc.Tab(
                     label='Summary',
                     children=[]
                 )

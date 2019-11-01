@@ -15,3 +15,24 @@
     display: inline-block;
 }
 
+.upload-panel {
+    margin-bottom: 10px;
+}
+
+.loading-box {
+    position: absolute;
+    bottom: 60%;
+    left: 60%;
+}
+
+@media (max-width: 1440px) {
+    .tab {
+        padding: 10px 10px !important;
+    }
+}
+
+/* Bootstrap  styles override */
+
+.nav-link {
+    padding: 0.5rem 0.5rem;
+}
