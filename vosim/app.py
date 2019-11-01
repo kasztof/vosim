@@ -99,7 +99,9 @@ app.layout = html.Div([
                         dcc.Input(
                             id='depth-limit',
                             placeholder='Depth',
-                            type='number'
+                            type='number',
+                            min=1,
+                            step=1
                         ),
 
                         dcc.Input(

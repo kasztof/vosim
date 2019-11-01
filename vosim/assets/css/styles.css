@@ -1,7 +1,7 @@
 .bottom-slider {
     width: 90%;
     display: inline-block;
-    margin-left: 5%;
+    margin-left: 7%;
 }
 
 .network {
@@ -34,28 +34,26 @@
     }
 }
 
-#layout-dropdown {
-    padding: 5px;
+#layout-dropdown, #model-dropdown {
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
-#model-dropdown {
-    padding: 5px;
-
+#depth-limit {
+    margin-right: 2%;
 }
 
 #depth-limit, #treshold  {
-    margin: 5px;
-    width: 45%;
+    width: 49%;
     border: 1px solid #ccc;
     border-radius: 4px;
-    color: #aaa;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 5px 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 #start-button {
     margin-top: 5px;
-    margin-left: 5px;
 }
 
 
