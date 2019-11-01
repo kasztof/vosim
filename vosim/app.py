@@ -85,7 +85,6 @@ app.layout = html.Div([
                             options=layout_options,
                             searchable=False,
                             clearable=False,
-                            value='cose',
                             placeholder='Select network layout',
                         ),
 
@@ -94,26 +93,25 @@ app.layout = html.Div([
                             options=model_options,
                             searchable=False,
                             clearable=False,
-                            value='indcas',
                             placeholder="Select influence model",
                         ),
 
                         dcc.Input(
                             id='depth-limit',
-                            placeholder='Enter depth limit',
+                            placeholder='Depth',
                             type='number'
                         ),
 
                         dcc.Input(
                             id='treshold',
-                            placeholder='Enter treshold',
+                            placeholder='Treshold',
                             type='number',
                             min=0,
                             max=1,
                             step=0.05
                         ),
 
-                        dbc.Button('Start', id='start-button'),
+                        dbc.Button('Start', id='start-button', color='primary'),
                     ]
                 ),
                 
@@ -160,6 +158,7 @@ app.layout = html.Div([
             min=0,
             max=10,
             marks={i: '{}'.format(i) for i in range(4)},
+            updatemode='drag'
         )
     ],
         className='bottom-slider'
