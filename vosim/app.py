@@ -125,7 +125,7 @@ app.layout = html.Div([
         ),
 
         html.Pre(id='output-activated-nodes'),
-        dcc.Store(id='data-file-content'),
+        dcc.Store(id='graph-pickled'),
         dcc.Store(id='data-selected-nodes'),
         dcc.Loading(
             children=[

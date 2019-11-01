@@ -11,8 +11,7 @@ def get_graph(content: str, file_format: str = 'events'):
     return graph
 
 
-def get_network(content: str, file_format: str = 'events') -> list:
-    graph = get_graph(content, file_format)
+def get_network_from_graph(graph, file_format: str = 'events') -> list:
     nodes = [
         {
             'data': {
