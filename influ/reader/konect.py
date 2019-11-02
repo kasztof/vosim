@@ -84,7 +84,7 @@ class KonectReader:
         self.download(dataset_name)
         self.extract_tbz2(dataset_name)
         dest_path = self.convert_to_csv(dataset_name)
-        graph = read_graph(dest_path, 'events', directed=self.datasets[dataset_name])
+        graph = read_graph(dest_path, 'events', directed=self.datasets[dataset_name]['directed'])
         graph['name'] = self.datasets[dataset_name]['name']
         self.apply_vs_attributes(dataset_name, graph)
         return graph
