@@ -6,19 +6,61 @@ import pickle
 
 def register_callbacks(app, stylesheet):
     @app.callback([Output('cytoscape-elements', 'elements'),
-                   Output('graph-pickled', 'data')],
+                   Output('graph-pickled', 'data'),
+                   Output('cytoscape-elements', 'stylesheet')],
                   [Input('upload-data', 'contents'),
-                   Input('load-konect-network', 'n_clicks')],
-                  [State('konect-networks-dropdown', 'value')])
-    def load_network(upload_content, n_clicks, konect_network_name):
-        if upload_content is not None:
+                   Input('load-konect-network', 'n_clicks'),
+                   Input('slider', 'value'),
+                   Input('data-activated-nodes', 'data')],
+                  [State('konect-networks-dropdown', 'value'),
+                   State('cytoscape-elements', 'stylesheet')])
+    def load_network(upload_content, n_clicks, slider_value, activated_nodes, konect_network_name, stylesheet):
+        if slider_value is not None and activated_nodes is not None:
+            print("FIRST")
             graph = get_graph(upload_content)
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode() 
+            new_styles = [
+                {
+                    'selector': '[label = ' + str(node_id) + ']',
+                    'style': {
+                        'background-color': 'red'
+                    }
+                } for node_id in activated_nodes[slider_value]
+            ]
+            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), stylesheet + new_styles
+        elif upload_content is not None:
+            print("SECOND")
+            graph = get_graph(upload_content)
+
+            directed_edges = [
+                {
+                    'selector': '#' + str(e.source) + str(e.target),
+                    'style': {
+                        'target-arrow-color': 'blue',
+                        'target-arrow-shape': 'triangle',
+                        'arrow-scale': 0.3,
+                    }
+                } for e in graph.es
+            ]
+
+            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), stylesheet + directed_edges
         elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
+            print("THIRD")
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode() 
-        return [], None
+
+            directed_edges = [
+                {
+                    'selector': '#' + str(e.source) + str(e.target),
+                    'style': {
+                        'source-arrow-color': 'blue',
+                        'source-arrow-shape': 'triangle',
+                        'arrow-scale': 0.3,
+                    }
+                } for e in graph.es
+            ]
+
+            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), stylesheet + directed_edges
+        return [], None, stylesheet
     
     @app.callback([Output('data-activated-nodes', 'data'),
                    Output('slider', 'value'),
@@ -41,21 +83,21 @@ def register_callbacks(app, stylesheet):
             return result, slider_value, slider_max, slider_marks
         return None, 0, 0, {}
     
-    @app.callback(Output('cytoscape-elements', 'stylesheet'),
-                  [Input('slider', 'value'),
-                   Input('data-activated-nodes', 'data')])
-    def update_active_nodes(value, data):
-        if value is not None and data is not None:
-            new_styles = [
-                {
-                    'selector': '[label = ' + str(node_id) + ']',
-                    'style': {
-                        'background-color': 'red'
-                    }
-                } for node_id in data[value]
-            ]
-            return stylesheet + new_styles
-        return stylesheet
+    # @app.callback(Output('cytoscape-elements', 'stylesheet'),
+    #               [Input('slider', 'value'),
+    #                Input('data-activated-nodes', 'data')])
+    # def update_active_nodes(value, data):
+    #     if value is not None and data is not None:
+    #         new_styles = [
+    #             {
+    #                 'selector': '[label = ' + str(node_id) + ']',
+    #                 'style': {
+    #                     'background-color': 'red'
+    #                 }
+    #             } for node_id in data[value]
+    #         ]
+    #         return stylesheet + new_styles
+    #     return stylesheet
     
     @app.callback(Output('cytoscape-elements', 'layout'),
                   [Input('layout-dropdown', 'value')])

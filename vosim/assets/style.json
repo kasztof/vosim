@@ -77,21 +77,5 @@
     "background-color": "#394855",
     "text-outline-color": "#394855"
   }
-},
-{
-  "selector": "#87",
-  "style": {
-      "source-arrow-shape": "triangle",
-      "line-color": "red",
-      "arrow-scale": 1
-  }
-},
-{
-  "selector": "#78",
-  "style": {
-      "source-arrow-shape": "triangle",
-      "line-color": "red",
-      "arrow-scale": 0.3
-  }
 }
 ]
