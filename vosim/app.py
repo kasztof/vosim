@@ -147,57 +147,7 @@ app.layout = html.Div([
                 'randomize': True,
             },
             elements=[],
-            stylesheet=STYLESHEET + [
-                {
-                    'selector': 'node',
-                    'style': {
-                        'label': 'data(id)'
-                    }
-                },
-                {
-                    'selector': 'edge',
-                    'style': {
-                        # The default curve style does not work with certain arrows
-                        'curve-style': 'bezier',
-                        'color': 'blue'
-                    }
-                },
-                {
-                    'selector': '#12',
-                    'style': {
-                        'source-arrow-color': 'red',
-                        'source-arrow-shape': 'triangle',
-                        'line-color': 'red'
-                    }
-                },
-                {
-                    'selector': '#21',
-                    'style': {
-                        'target-arrow-color': 'blue',
-                        'target-arrow-shape': 'vee',
-                        'line-color': 'blue'
-                    }
-                },
-                {
-                    'selector': '#87',
-                    'style': {
-                        'mid-source-arrow-color': 'green',
-                        'mid-source-arrow-shape': 'diamond',
-                        'mid-source-arrow-fill': 'hollow',
-                        'line-color': 'green',
-                    }
-                },
-                {
-                    'selector': '#78',
-                    'style': {
-                        'mid-target-arrow-color': 'black',
-                        'mid-target-arrow-shape': 'circle',
-                        'arrow-scale': 2,
-                        'line-color': 'black',
-                    }
-                }
-            ],
-
+            stylesheet=STYLESHEET
         ),
     ],
         className='network'
