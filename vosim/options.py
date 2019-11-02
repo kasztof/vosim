@@ -21,3 +21,9 @@ konect_options = [
     {'label': 'Train bombing', 'value': 'train_bombing'},
     {'label': 'David Copperfield', 'value': 'david_copperfield'}
 ]
+
+node_size_options = [
+    {'label': 'Degree', 'value': 'degree'},
+    {'label': 'Betweenness', 'value': 'betweenness'},
+    {'label': 'Clustering coefficient', 'value': 'clustering_coeff'}
+]

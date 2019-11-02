@@ -13,8 +13,8 @@
 }, {
   "selector": "node",
   "style": {
-    "width": "mapData(score, 1, 50, 2, 15)",
-    "height": "mapData(score, 1, 50, 2, 15)",
+    "width": "mapData(degree, 1, 50, 2, 15)",
+    "height": "mapData(degree, 1, 50, 2, 15)",
     "font-size": "6px"
   }
 }, {
@@ -76,22 +76,6 @@
     "border-opacity": "0.5",
     "background-color": "#394855",
     "text-outline-color": "#394855"
-  }
-},
-{
-  "selector": "#87",
-  "style": {
-      "source-arrow-shape": "triangle",
-      "line-color": "red",
-      "arrow-scale": 1
-  }
-},
-{
-  "selector": "#78",
-  "style": {
-      "source-arrow-shape": "triangle",
-      "line-color": "red",
-      "arrow-scale": 0.3
   }
 }
 ]

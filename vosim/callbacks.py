@@ -43,18 +43,35 @@ def register_callbacks(app, stylesheet):
     
     @app.callback(Output('cytoscape-elements', 'stylesheet'),
                   [Input('slider', 'value'),
-                   Input('data-activated-nodes', 'data')])
-    def update_active_nodes(value, data):
-        if value is not None and data is not None:
+                   Input('data-activated-nodes', 'data'),
+                   Input('node-size-dropdown', 'value')])
+    def update_active_nodes(slider_value, data, node_size_metric):
+        if slider_value is not None and data is not None:
             new_styles = [
                 {
                     'selector': '[label = ' + str(node_id) + ']',
                     'style': {
                         'background-color': 'red'
                     }
-                } for node_id in data[value]
+                } for node_id in data[slider_value]
             ]
             return stylesheet + new_styles
+
+        elif node_size_metric is not None:
+            rule = "mapData(" + node_size_metric + ", 1, 50, 2, 15)" if node_size_metric != 'clustering_coeff' \
+                else "mapData(" + node_size_metric + ", 0, 1, 2, 10)"
+            print(rule)
+            node_size_metric_style = [
+                {
+                    "selector": "node",
+                    "style": {
+                        "width": rule,
+                        "height": rule,
+                        "font-size": "6px",
+                    }
+                }
+            ]
+            return stylesheet + node_size_metric_style
         return stylesheet
     
     @app.callback(Output('cytoscape-elements', 'layout'),

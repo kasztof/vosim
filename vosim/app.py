@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 from .server import app
 from .callbacks import register_callbacks
-from .options import layout_options, model_options, konect_options
+from .options import layout_options, model_options, konect_options, node_size_options
 
 DOTENV_PATH = join(dirname(__file__), '../.env')
 load_dotenv(DOTENV_PATH)
@@ -119,8 +119,16 @@ app.layout = html.Div([
                 ),
                 
                 dbc.Tab(
-                    label='Summary',
-                    children=[]
+                    label='Layout',
+                    children=[
+                        dcc.Dropdown(
+                            id='node-size-dropdown',
+                            options=node_size_options,
+                            searchable=False,
+                            clearable=False,
+                            value='degree',
+                        )
+                    ]
                 )
             ]
         ),

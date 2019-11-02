@@ -17,11 +17,13 @@ def get_network_from_graph(graph, file_format: str = 'events') -> list:
             'data': {
                 'id': node_id,
                 'label': node_id,
-                'score': degree
+                'degree': degree,
+                'betweenness': betweenness,
+                'clustering_coeff': clustering_coeff
             },
         }
-        for node_id, degree in (
-            zip(graph.vs.indices, graph.vs.degree())
+        for node_id, degree, betweenness, clustering_coeff in (
+            zip(graph.vs.indices, graph.degree(), graph.betweenness(), graph.transitivity_local_undirected())
         )
     ]
 
