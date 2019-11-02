@@ -27,3 +27,10 @@ node_size_options = [
     {'label': 'Betweenness', 'value': 'betweenness'},
     {'label': 'Clustering coefficient', 'value': 'clustering_coeff'}
 ]
+
+initial_nodes_method_options = [
+    {'label': 'Degree', 'value': 'degree'},
+    {'label': 'Betweenness', 'value': 'betweenness'},
+    {'label': 'Clustering coefficient', 'value': 'clustering_coeff'},
+    {'label': 'Manual', 'value': 'manual'}
+]

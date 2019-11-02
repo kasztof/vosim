@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 from .server import app
 from .callbacks import register_callbacks
-from .options import layout_options, model_options, konect_options, node_size_options
+from .options import layout_options, model_options, konect_options, node_size_options, initial_nodes_method_options
 
 DOTENV_PATH = join(dirname(__file__), '../.env')
 load_dotenv(DOTENV_PATH)
@@ -113,6 +113,24 @@ app.layout = html.Div([
                             max=1,
                             step=0.05
                         ),
+
+                        html.Div([
+                            html.Label('Initial nodes'),
+                            dcc.Dropdown(
+                                id='initial-nodes-method-dropdown',
+                                options=initial_nodes_method_options,
+                                searchable=False,
+                                clearable=False,
+                            ),
+
+                            dcc.Input(
+                                id='initial-nodes-number',
+                                type='number',
+                                min=1,
+                                step=1,
+                                value=1,
+                            ),
+                        ]),
 
                         dbc.Button('Start', id='start-button', color='primary'),
                     ]

@@ -1,5 +1,6 @@
 from dash.dependencies import Input, Output, State
 from influ.finder.model import independent_cascade
+from influ.finder.influence import SeedFinder
 from influ import reader
 from vosim.utils import get_graph, get_network_from_graph
 import pickle
@@ -28,19 +29,41 @@ def register_callbacks(app, stylesheet):
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
                    State('treshold', 'value'),
-                   State('data-selected-nodes', 'data')])
-    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, initial_nodes):
+                   State('data-selected-nodes', 'data'),
+                   State('initial-nodes-method-dropdown','value'),
+                   State('initial-nodes-number', 'value')])
+    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None:
             graph = pickle.loads((graph_pickled.encode()))
-            result = independent_cascade(graph, initial_nodes, depth=depth, threshold=treshold)
+
+            finder = SeedFinder(graph, init_nodes_num)
+
+            init_nodes = []
+            if init_nodes_method == 'degree':
+                init_nodes = finder.by_degree()
+            elif init_nodes_method == 'betweenness':
+                init_nodes = finder.by_betweenness()
+            elif init_nodes_method == 'clustering_coeff':
+                init_nodes = finder.by_clustering_coefficient()
+            else:
+                init_nodes = initial_nodes
+
+            result = independent_cascade(graph, init_nodes, depth=depth, threshold=treshold)
     
             slider_value = 0
             slider_max = len(result) - 1
             slider_marks = {i: '{}'.format(i) for i in range(len(result))}
-    
-            return result, slider_value, slider_max, slider_marks
+
+            return result, slider_value, slider_max, slider_marks,
         return None, 0, 0, {}
     
+    @app.callback(Output('initial-nodes-number', 'disabled'),
+                  [Input('initial-nodes-method-dropdown', 'value')])
+    def toggle_init_nodes_input(init_nodes_method):
+        init_nodes_num_disabled = True if init_nodes_method == 'manual' else False
+        return init_nodes_num_disabled
+
+
     @app.callback(Output('cytoscape-elements', 'stylesheet'),
                   [Input('slider', 'value'),
                    Input('data-activated-nodes', 'data'),
@@ -55,12 +78,25 @@ def register_callbacks(app, stylesheet):
                     }
                 } for node_id in data[slider_value]
             ]
-            return stylesheet + new_styles
 
-        elif node_size_metric is not None:
             rule = "mapData(" + node_size_metric + ", 1, 50, 2, 15)" if node_size_metric != 'clustering_coeff' \
                 else "mapData(" + node_size_metric + ", 0, 1, 2, 10)"
-            print(rule)
+            node_size_metric_style = [
+                {
+                    "selector": "node",
+                    "style": {
+                        "width": rule,
+                        "height": rule,
+                        "font-size": "6px",
+                    }
+                }
+            ]
+
+            return stylesheet + new_styles + node_size_metric_style
+
+        if node_size_metric is not None:
+            rule = "mapData(" + node_size_metric + ", 1, 50, 2, 15)" if node_size_metric != 'clustering_coeff' \
+                else "mapData(" + node_size_metric + ", 0, 1, 2, 10)"
             node_size_metric_style = [
                 {
                     "selector": "node",
