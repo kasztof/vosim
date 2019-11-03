@@ -70,13 +70,25 @@ def register_callbacks(app, stylesheet):
                    Input('node-size-dropdown', 'value')])
     def update_active_nodes(slider_value, data, node_size_metric):
         if slider_value is not None and data is not None:
-            new_styles = [
+            activated_nodes = [
                 {
                     'selector': '[label = ' + str(node_id) + ']',
                     'style': {
                         'background-color': 'red'
                     }
                 } for node_id in data[slider_value]
+            ]
+
+            newly_activated_nodes = set(data[slider_value]) - set(data[slider_value - 1]) if slider_value != 0 else []
+
+            newly_activated_styles = [
+                {
+                    'selector': '[label = ' + str(node_id) + ']',
+                    'style': {
+                        'border-width': '1px',
+                        'border-color': 'green'
+                    }
+                } for node_id in newly_activated_nodes
             ]
 
             rule = "mapData(" + node_size_metric + ", 1, 50, 2, 15)" if node_size_metric != 'clustering_coeff' \
@@ -92,7 +104,7 @@ def register_callbacks(app, stylesheet):
                 }
             ]
 
-            return stylesheet + new_styles + node_size_metric_style
+            return stylesheet + activated_nodes + newly_activated_styles + node_size_metric_style
 
         if node_size_metric is not None:
             rule = "mapData(" + node_size_metric + ", 1, 50, 2, 15)" if node_size_metric != 'clustering_coeff' \
