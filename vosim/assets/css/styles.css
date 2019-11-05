@@ -1,13 +1,16 @@
 .bottom-slider {
-    width: 90%;
+    width: 75%;
     display: inline-block;
-    margin-left: 7%;
+    margin-left: 20%;
+    padding-left: 5%;
+    padding-top:
 }
 
-.network {
+.right-panel {
     width: 80%;
     display: inline-block;
     float: right;
+    padding: 5px;
 }
 
 .left-panel {
@@ -99,4 +102,10 @@
     border-bottom-right-radius: 5px;
     border-top-right-radius: 5px;
     padding: 5%;
+}
+
+.right-panel .tab-content {
+    padding: 0;
+    height: 85vh;
+    background-color: #ffffff;
 }

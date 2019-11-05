@@ -165,18 +165,32 @@ app.layout = html.Div([
     ),
 
     html.Div([
-        cyto.Cytoscape(
-            id='cytoscape-elements',
-            style={'width': '100%', 'height': '85vh'},
-            layout={
-                'name': 'cose',
-                'randomize': True,
-            },
-            elements=[],
-            stylesheet=STYLESHEET
-        ),
+        dbc.Tabs(
+            id='visualisation-tabs',
+            children = [
+                dbc.Tab(
+                    label='Network',
+                    children=[
+                        cyto.Cytoscape( 
+                            id='cytoscape-elements',
+                            style={'width': '100%', 'height': '85vh'},
+                            layout={
+                                'name': 'cose',
+                                'randomize': True,
+                            },
+                            elements=[],
+                            stylesheet=STYLESHEET
+                        ),
+                    ]
+                ),
+
+                dbc.Tab(
+                    label='Statistics'
+                )
+            ]
+        )
     ],
-        className='network'
+        className='right-panel'
     ),
 
     html.Div([
