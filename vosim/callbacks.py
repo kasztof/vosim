@@ -45,6 +45,8 @@ def register_callbacks(app, stylesheet):
                 init_nodes = finder.by_betweenness()
             elif init_nodes_method == 'clustering_coeff':
                 init_nodes = finder.by_clustering_coefficient()
+            elif init_nodes_method == 'random':
+                init_nodes = finder.by_random()
             else:
                 init_nodes = initial_nodes
 
