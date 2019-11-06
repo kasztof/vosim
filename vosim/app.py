@@ -17,7 +17,6 @@ DOTENV_PATH = join(dirname(__file__), '../.env')
 load_dotenv(DOTENV_PATH)
 
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
-PORT = os.environ.get('PORT')
 
 with open(PROJECT_ROOT + '/vosim/assets/style.json', 'r') as f:
     STYLESHEET = json.loads(f.read())
