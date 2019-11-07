@@ -164,18 +164,59 @@ app.layout = html.Div([
     ),
 
     html.Div([
-        cyto.Cytoscape(
-            id='cytoscape-elements',
-            style={'width': '100%', 'height': '85vh'},
-            layout={
-                'name': 'cose',
-                'randomize': True,
-            },
-            elements=[],
-            stylesheet=STYLESHEET
-        ),
+        dbc.Tabs(
+            id='visualisation-tabs',
+            children = [
+                dbc.Tab(
+                    label='Network',
+                    children=[
+                        cyto.Cytoscape( 
+                            id='cytoscape-elements',
+                            style={'width': '100%', 'height': '85vh'},
+                            layout={
+                                'name': 'cose',
+                                'randomize': True,
+                            },
+                            elements=[],
+                            stylesheet=STYLESHEET
+                        ),
+                    ]
+                ),
+
+                dbc.Tab(
+                    label='Statistics',
+                    children=[
+                        dcc.Graph(
+                            id='activations-graph',
+                            figure={
+                                'data': [],
+                                'layout': {}
+                            }
+                        ),
+
+                        dcc.Graph(
+                            id='graph-degree-distribution',
+                            figure={
+                                'data': [],
+                                'layout': {}
+                            },
+                        ),
+
+                        html.Div(
+                            id='div-table-graph-stats',
+                            children=[
+                                html.Table(
+                                    id='table-graph-stats',
+                                    children=[],
+                                )
+                            ]
+                        )
+                    ],
+                )
+            ]
+        )
     ],
-        className='network'
+        className='right-panel'
     ),
 
     html.Div([
