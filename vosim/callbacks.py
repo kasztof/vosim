@@ -1,7 +1,7 @@
 from dash.dependencies import Input, Output, State
 from influ.finder.model import independent_cascade
 from influ import reader
-from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data
+from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data, get_degree_distribution_data
 
 from .options import initial_nodes_method_options
 
@@ -138,7 +138,8 @@ def register_callbacks(app, stylesheet):
         return is_open
 
 
-    @app.callback(Output('activations-graph', 'figure'),
+    @app.callback([Output('activations-graph', 'figure'),
+                   Output('graph-degree-distribution', 'figure')],
                   [Input('start-button', 'n_clicks')],
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
@@ -156,8 +157,9 @@ def register_callbacks(app, stylesheet):
                 init_nodes_methods.remove('manual')
             
             activated_nodes_data = get_methods_activated_nodes_data(graph, init_nodes_num, init_nodes_methods, depth, treshold, initial_nodes)
+            degrees_histogram_data = get_degree_distribution_data(graph)
 
-            figure = {
+            activations_figure = {
                 'data': [
                     {
                         'type': 'scatter',
@@ -176,8 +178,35 @@ def register_callbacks(app, stylesheet):
                         'title':'Number of activated nodes',
                     },
                     'width': '1500',
+                    'height': '400',
                 }
             }
 
-            return figure
-        return {}
+            degree_hist_figure = {
+                'data': [
+                    {
+                        'type': 'scatter',
+                        'mode': 'markers',
+                        'y': list(degrees_histogram_data.values()),
+                        'x': list(degrees_histogram_data.keys()),
+                    }
+                ],
+                'layout': {
+                    'title':'Degree distribution',
+                    'xaxis': {
+                        'title':'Degree (d)',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                    'yaxis': {
+                        'title': 'Frequency',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                    'width': '600',
+                    'height': '350',
+                }
+            }
+
+            return activations_figure, degree_hist_figure
+        return {}, {}

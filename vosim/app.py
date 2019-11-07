@@ -193,7 +193,14 @@ app.layout = html.Div([
                                 'data': [],
                                 'layout': {}
                             }
-                        )
+                        ),
+                        dcc.Graph(
+                            id='graph-degree-distribution',
+                            figure={
+                                'data': [],
+                                'layout': {}
+                            }
+                        ),
                     ],
                 )
             ]

@@ -71,3 +71,14 @@ def get_methods_activated_nodes_data(graph, init_nodes_num, methods_list, depth,
         num_of_activated_nodes = [len(l) for l in model_result]
         result[method] = num_of_activated_nodes
     return result
+
+
+def get_degree_distribution_data(graph):
+    degrees = {}
+    for i in range(graph.vs.maxdegree() + 1):
+        degrees[i] = 0
+
+    for node in graph.vs:
+        degrees[node.degree()] += 1
+
+    return degrees
