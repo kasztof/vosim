@@ -1,4 +1,4 @@
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ClientsideFunction
 from influ.finder.model import independent_cascade
 from influ import reader
 from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics
@@ -6,6 +6,7 @@ import dash_html_components as html
 
 from .options import initial_nodes_method_options
 
+import io, csv
 import pickle
 
 def register_callbacks(app, stylesheet):
@@ -225,3 +226,17 @@ def register_callbacks(app, stylesheet):
 
             return activations_figure
         return {}
+
+
+    @app.callback(Output('download-link', 'href'),
+                  [Input('data-activated-nodes', 'data')])
+    def update_download_link(activations_data):
+        if activations_data is not None:
+            result = io.StringIO()
+            writer = csv.writer(result)
+            for list in activations_data:
+                writer.writerow(list)
+            csv_string = "data:text/csv;charset=utf-8," + result.getvalue()
+            return csv_string
+        else:
+            return ''

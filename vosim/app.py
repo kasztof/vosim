@@ -23,6 +23,7 @@ with open(PROJECT_ROOT + '/vosim/assets/style.json', 'r') as f:
 
 cyto.load_extra_layouts()
 
+
 app.layout = html.Div([
     html.Div([
         dbc.Tabs(
@@ -153,6 +154,16 @@ app.layout = html.Div([
                 )
             ]
         ),
+
+        html.Div([
+            html.A(
+                'Download Data',
+                id='download-link',
+                download="rawdata.csv",
+                href="",
+                target="_blank"
+            )
+        ]),
 
         html.Pre(id='output-activated-nodes'),
         dcc.Store(id='graph-pickled'),
