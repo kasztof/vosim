@@ -1,7 +1,8 @@
 from dash.dependencies import Input, Output, State
 from influ.finder.model import independent_cascade
 from influ import reader
-from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data, get_degree_distribution_data
+from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics
+import dash_html_components as html
 
 from .options import initial_nodes_method_options
 
@@ -139,7 +140,8 @@ def register_callbacks(app, stylesheet):
 
 
     @app.callback([Output('activations-graph', 'figure'),
-                   Output('graph-degree-distribution', 'figure')],
+                   Output('graph-degree-distribution', 'figure'),
+                   Output('table-graph-stats', 'children')],
                   [Input('start-button', 'n_clicks')],
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
@@ -158,6 +160,7 @@ def register_callbacks(app, stylesheet):
             
             activated_nodes_data = get_methods_activated_nodes_data(graph, init_nodes_num, init_nodes_methods, depth, treshold, initial_nodes)
             degrees_histogram_data = get_degree_distribution_data(graph)
+            graph_stats = get_graph_statistics(graph)
 
             activations_figure = {
                 'data': [
@@ -177,8 +180,6 @@ def register_callbacks(app, stylesheet):
                     'yaxis': {
                         'title':'Number of activated nodes',
                     },
-                    'width': '1500',
-                    'height': '400',
                 }
             }
 
@@ -193,6 +194,7 @@ def register_callbacks(app, stylesheet):
                 ],
                 'layout': {
                     'title':'Degree distribution',
+                    'showlegend': False,
                     'xaxis': {
                         'title':'Degree (d)',
                         'tick0': 0,
@@ -203,10 +205,12 @@ def register_callbacks(app, stylesheet):
                         'tick0': 0,
                         'dtick': 1,
                     },
-                    'width': '600',
-                    'height': '350',
                 }
             }
 
-            return activations_figure, degree_hist_figure
-        return {}, {}
+            table_content = [html.Tr([
+                html.Td(stat), html.Td(graph_stats[stat])
+            ]) for stat in graph_stats]
+
+            return activations_figure, degree_hist_figure, table_content
+        return {}, {}, []

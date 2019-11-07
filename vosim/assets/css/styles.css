@@ -71,6 +71,46 @@
     border: 1px solid #ccc;
 }
 
+#activations-graph {
+    height: 40vh;
+    width: 75vw;
+}
+
+#graph-degree-distribution {
+    height: 40vh;
+    width: 40vw;
+    display: inline-block;
+}
+
+#div-table-graph-stats {
+    display: inline-block;
+    height: 40vh;
+    width: 35vw;
+}
+
+#table-graph-stats {
+    border-collapse: collapse;
+    width: 75%;
+    margin: 10% auto;
+}
+  
+#table-graph-stats td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+  
+#table-graph-stats tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+  
+#table-graph-stats tr:hover {
+    background-color: #ddd;
+}
+
+#table-graph-stats td:first-child {
+    font-weight: bold;
+}
+
 
 /* Bootstrap  styles override */
 

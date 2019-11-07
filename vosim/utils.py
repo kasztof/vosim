@@ -1,5 +1,8 @@
 import io
 import base64
+
+from igraph import mean
+
 from influ import reader
 from influ.finder.influence import SeedFinder
 from influ.finder.model import independent_cascade
@@ -82,3 +85,13 @@ def get_degree_distribution_data(graph):
         degrees[node.degree()] += 1
 
     return degrees
+
+
+def get_graph_statistics(graph):
+    return {
+        'Size': str(graph.vcount()) + ' vertices',
+        'Volume': str(graph.ecount()) + ' edges',
+        'Average degree': str(round(mean(graph.degree()), 2)) + ' edges/vertex',
+        'Clustering coefficient': str(round(graph.transitivity_undirected() * 100, 2)) + '%',
+        'Diameter': str(graph.diameter(directed=False)) + ' edges',
+    }
