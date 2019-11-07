@@ -188,6 +188,7 @@ app.layout = html.Div([
                         html.Div([
                             html.Span(
                                 'Iteration:',
+                                id='iterations-label'
                             ),
                             dcc.Slider(
                                 id='slider',

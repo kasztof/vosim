@@ -11,7 +11,7 @@
     height: 100%;
   }
 
-.bottom-slider span {
+#iterations-label {
     vertical-align: middle;
     display: inline-block;
     padding-left: 2%;
@@ -22,7 +22,7 @@
     vertical-align: middle;
     display: inline-block;
     width: 89%;
-    margin: auto;
+    margin: auto; 
 }
 
 .right-panel {
