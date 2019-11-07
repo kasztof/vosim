@@ -10,19 +10,62 @@ import pickle
 
 def register_callbacks(app, stylesheet):
     @app.callback([Output('cytoscape-elements', 'elements'),
-                   Output('graph-pickled', 'data')],
+                   Output('graph-pickled', 'data'),
+                   Output('graph-degree-distribution', 'figure'),
+                   Output('table-graph-stats', 'children'),
+                   Output('layout-tab', 'disabled'),
+                   Output('simulation-tab', 'disabled'),
+                   Output('statistics-tab', 'disabled')],
                   [Input('upload-data', 'contents'),
                    Input('load-konect-network', 'n_clicks')],
                   [State('konect-networks-dropdown', 'value')])
     def load_network(upload_content, n_clicks, konect_network_name):
+        graph = None
+
         if upload_content is not None:
             graph = get_graph(upload_content)
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode() 
         elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode() 
-        return [], None
+
+
+        if graph is not None:
+            
+            degrees_histogram_data = get_degree_distribution_data(graph)
+            graph_stats = get_graph_statistics(graph)
+
+            degree_hist_figure = {
+                'data': [
+                    {
+                        'type': 'scatter',
+                        'mode': 'markers',
+                        'y': list(degrees_histogram_data.values()),
+                        'x': list(degrees_histogram_data.keys()),
+                    }
+                ],
+                'layout': {
+                    'title':'Degree distribution',
+                    'showlegend': False,
+                    'xaxis': {
+                        'title':'Degree (d)',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                    'yaxis': {
+                        'title': 'Frequency',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                }
+            }
+
+            table_content = [html.Tr([
+                html.Td(stat), html.Td(graph_stats[stat])
+            ]) for stat in graph_stats]
+
+            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), degree_hist_figure, table_content, False, False, False
+        else:
+            return [], None, [], [], True, True, True
     
     @app.callback([Output('data-activated-nodes', 'data'),
                    Output('slider', 'value'),
@@ -139,9 +182,7 @@ def register_callbacks(app, stylesheet):
         return is_open
 
 
-    @app.callback([Output('activations-graph', 'figure'),
-                   Output('graph-degree-distribution', 'figure'),
-                   Output('table-graph-stats', 'children')],
+    @app.callback(Output('activations-graph', 'figure'),
                   [Input('start-button', 'n_clicks')],
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
@@ -151,6 +192,7 @@ def register_callbacks(app, stylesheet):
                    State('initial-nodes-number', 'value')])
     def generate_statistics(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None and treshold is not None and depth is not None:
+            print('run')
             graph = pickle.loads((graph_pickled.encode()))
 
             init_nodes_methods = [option['value'] for option in initial_nodes_method_options]
@@ -159,8 +201,6 @@ def register_callbacks(app, stylesheet):
                 init_nodes_methods.remove('manual')
             
             activated_nodes_data = get_methods_activated_nodes_data(graph, init_nodes_num, init_nodes_methods, depth, treshold, initial_nodes)
-            degrees_histogram_data = get_degree_distribution_data(graph)
-            graph_stats = get_graph_statistics(graph)
 
             activations_figure = {
                 'data': [
@@ -183,34 +223,5 @@ def register_callbacks(app, stylesheet):
                 }
             }
 
-            degree_hist_figure = {
-                'data': [
-                    {
-                        'type': 'scatter',
-                        'mode': 'markers',
-                        'y': list(degrees_histogram_data.values()),
-                        'x': list(degrees_histogram_data.keys()),
-                    }
-                ],
-                'layout': {
-                    'title':'Degree distribution',
-                    'showlegend': False,
-                    'xaxis': {
-                        'title':'Degree (d)',
-                        'tick0': 0,
-                        'dtick': 1,
-                    },
-                    'yaxis': {
-                        'title': 'Frequency',
-                        'tick0': 0,
-                        'dtick': 1,
-                    },
-                }
-            }
-
-            table_content = [html.Tr([
-                html.Td(stat), html.Td(graph_stats[stat])
-            ]) for stat in graph_stats]
-
-            return activations_figure, degree_hist_figure, table_content
-        return {}, {}, []
+            return activations_figure
+        return {}

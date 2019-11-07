@@ -1,9 +1,28 @@
 .bottom-slider {
-    width: 75%;
+    width: 100%;
+    height: 7vh;
+    border-top: 1px solid #dee2e6;
+}
+
+.bottom-slider:before {
+    content: "";
     display: inline-block;
-    margin-left: 20%;
-    padding-left: 5%;
-    padding-top:
+    vertical-align: middle;
+    height: 100%;
+  }
+
+.bottom-slider span {
+    vertical-align: middle;
+    display: inline-block;
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+#slider {
+    vertical-align: middle;
+    display: inline-block;
+    width: 89%;
+    margin: auto;
 }
 
 .right-panel {
@@ -146,6 +165,7 @@
 
 .right-panel .tab-content {
     padding: 0;
-    height: 85vh;
+    padding-bottom: 5%;
+    height: 92vh;
     background-color: #ffffff;
 }

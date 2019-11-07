@@ -78,6 +78,7 @@ app.layout = html.Div([
                 
                 dbc.Tab(
                     label='Simulation',
+                    id='simulation-tab',
                     children=[
                         dcc.Dropdown(
                             id='layout-dropdown',
@@ -132,11 +133,13 @@ app.layout = html.Div([
                         ]),
 
                         dbc.Button('Start', id='start-button', color='primary'),
-                    ]
+                    ],
+                    disabled=True,
                 ),
                 
                 dbc.Tab(
                     label='Layout',
+                    id='layout-tab',
                     children=[
                         dcc.Dropdown(
                             id='node-size-dropdown',
@@ -145,7 +148,8 @@ app.layout = html.Div([
                             clearable=False,
                             value='degree',
                         )
-                    ]
+                    ],
+                    disabled=True,
                 )
             ]
         ),
@@ -180,20 +184,29 @@ app.layout = html.Div([
                             elements=[],
                             stylesheet=STYLESHEET
                         ),
+
+                        html.Div([
+                            html.Span(
+                                'Iteration:',
+                            ),
+                            dcc.Slider(
+                                id='slider',
+                                step=1,
+                                min=0,
+                                max=10,
+                                marks={i: '{}'.format(i) for i in range(4)},
+                                updatemode='drag'
+                            )
+                        ],
+                            className='bottom-slider'
+                        ),
                     ]
                 ),
 
                 dbc.Tab(
                     label='Statistics',
+                    id='statistics-tab',
                     children=[
-                        dcc.Graph(
-                            id='activations-graph',
-                            figure={
-                                'data': [],
-                                'layout': {}
-                            }
-                        ),
-
                         dcc.Graph(
                             id='graph-degree-distribution',
                             figure={
@@ -210,26 +223,32 @@ app.layout = html.Div([
                                     children=[],
                                 )
                             ]
+                        ),
+
+                        dcc.Graph(
+                            id='activations-graph',
+                            figure={
+                                'data': [],
+                                'layout': {
+                                    'title':'Run simulation to generate this plot',
+                                    'xaxis': {
+                                        'title':'Iteration i',
+                                        'tick0': 0,
+                                        'dtick': 1,
+                                    },
+                                    'yaxis': {
+                                        'title':'Number of activated nodes',
+                                    },
+                                }
+                            }
                         )
                     ],
+                    disabled=True,
                 )
             ]
         )
     ],
         className='right-panel'
-    ),
-
-    html.Div([
-        dcc.Slider(
-            id='slider',
-            step=1,
-            min=0,
-            max=10,
-            marks={i: '{}'.format(i) for i in range(4)},
-            updatemode='drag'
-        )
-    ],
-        className='bottom-slider'
     ),
 ])
 
