@@ -185,7 +185,16 @@ app.layout = html.Div([
                 ),
 
                 dbc.Tab(
-                    label='Statistics'
+                    label='Statistics',
+                    children=[
+                        dcc.Graph(
+                            id='activations-graph',
+                            figure={
+                                'data': [],
+                                'layout': {}
+                            }
+                        )
+                    ],
                 )
             ]
         )

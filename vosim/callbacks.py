@@ -1,8 +1,10 @@
 from dash.dependencies import Input, Output, State
 from influ.finder.model import independent_cascade
-from influ.finder.influence import SeedFinder
 from influ import reader
-from vosim.utils import get_graph, get_network_from_graph
+from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data
+
+from .options import initial_nodes_method_options
+
 import pickle
 
 def register_callbacks(app, stylesheet):
@@ -36,19 +38,10 @@ def register_callbacks(app, stylesheet):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None:
             graph = pickle.loads((graph_pickled.encode()))
 
-            finder = SeedFinder(graph, init_nodes_num)
-
-            init_nodes = []
-            if init_nodes_method == 'degree':
-                init_nodes = finder.by_degree()
-            elif init_nodes_method == 'betweenness':
-                init_nodes = finder.by_betweenness()
-            elif init_nodes_method == 'clustering_coeff':
-                init_nodes = finder.by_clustering_coefficient()
-            elif init_nodes_method == 'random':
-                init_nodes = finder.by_random()
-            else:
+            if init_nodes_method == 'manual':
                 init_nodes = initial_nodes
+            else:
+                init_nodes = get_init_nodes(graph, init_nodes_method, init_nodes_num)
 
             result = independent_cascade(graph, init_nodes, depth=depth, threshold=treshold)
     
@@ -136,10 +129,55 @@ def register_callbacks(app, stylesheet):
             return [int(node['id'])for node in selected_nodes]
         return []
 
-    @app.callback(Output("modal", "is_open"),
-                  [Input("open-konect-modal", "n_clicks"), Input("close-konect-modal", "n_clicks")],
-                  [State("modal", "is_open")])
+    @app.callback(Output('modal', 'is_open'),
+                  [Input('open-konect-modal', 'n_clicks'), Input('close-konect-modal', 'n_clicks')],
+                  [State('modal', 'is_open')])
     def toggle_modal(n1, n2, is_open):
         if n1 or n2:
             return not is_open
         return is_open
+
+
+    @app.callback(Output('activations-graph', 'figure'),
+                  [Input('start-button', 'n_clicks')],
+                  [State('graph-pickled', 'data'),
+                   State('depth-limit', 'value'),
+                   State('treshold', 'value'),
+                   State('data-selected-nodes', 'data'),
+                   State('initial-nodes-method-dropdown','value'),
+                   State('initial-nodes-number', 'value')])
+    def generate_statistics(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
+        if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None and treshold is not None and depth is not None:
+            graph = pickle.loads((graph_pickled.encode()))
+
+            init_nodes_methods = [option['value'] for option in initial_nodes_method_options]
+
+            if initial_nodes == []:
+                init_nodes_methods.remove('manual')
+            
+            activated_nodes_data = get_methods_activated_nodes_data(graph, init_nodes_num, init_nodes_methods, depth, treshold, initial_nodes)
+
+            figure = {
+                'data': [
+                    {
+                        'type': 'scatter',
+                        'y': activated_nodes_data[method],
+                        'name': method,
+                    } for method in activated_nodes_data
+                ],
+                'layout': {
+                    'title':'Activated nodes in iteration i',
+                    'xaxis': {
+                        'title':'Iteration i',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                    'yaxis': {
+                        'title':'Number of activated nodes',
+                    },
+                    'width': '1500',
+                }
+            }
+
+            return figure
+        return {}

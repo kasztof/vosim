@@ -1,6 +1,9 @@
 import io
 import base64
 from influ import reader
+from influ.finder.influence import SeedFinder
+from influ.finder.model import independent_cascade
+
 
 
 def get_graph(content: str, file_format: str = 'events'):
@@ -38,3 +41,33 @@ def get_network_from_graph(graph, file_format: str = 'events') -> list:
     ]
 
     return nodes + edges
+
+
+def get_init_nodes(graph, init_nodes_method, init_nodes_num):
+    finder = SeedFinder(graph, init_nodes_num)
+
+    init_nodes = []
+    if init_nodes_method == 'degree':
+        init_nodes = finder.by_degree()
+    elif init_nodes_method == 'betweenness':
+        init_nodes = finder.by_betweenness()
+    elif init_nodes_method == 'clustering_coeff':
+        init_nodes = finder.by_clustering_coefficient()
+    elif init_nodes_method == 'random':
+        init_nodes = finder.by_random()
+
+    return init_nodes
+
+
+def get_methods_activated_nodes_data(graph, init_nodes_num, methods_list, depth, threshold, manual_init_nodes=None):
+    result = {}
+    for method in methods_list:
+        if method == 'manual' and manual_init_nodes is not None:
+            init_nodes = manual_init_nodes
+        else:
+            init_nodes = get_init_nodes(graph, method, init_nodes_num)
+
+        model_result = independent_cascade(graph, init_nodes, depth=depth, threshold=threshold)
+        num_of_activated_nodes = [len(l) for l in model_result]
+        result[method] = num_of_activated_nodes
+    return result
