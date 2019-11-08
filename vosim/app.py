@@ -157,13 +157,21 @@ app.layout = html.Div([
 
         html.Div([
             html.A(
-                'Download Data',
+                children=[
+                    dbc.Button(
+                        'Download activations',
+                        color='success',
+                        block=True
+                    )
+                ],
                 id='download-link',
                 download="rawdata.csv",
                 href="",
                 target="_blank"
             )
-        ]),
+        ],
+            id='network-info-panel'
+        ),
 
         html.Pre(id='output-activated-nodes'),
         dcc.Store(id='graph-pickled'),
