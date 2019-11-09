@@ -6,7 +6,12 @@ import dash_html_components as html
 
 from .options import initial_nodes_method_options
 
-import io, csv
+import pandas as pd
+import urllib.parse
+
+import io
+from flask import make_response
+import csv
 import pickle
 
 def register_callbacks(app, stylesheet):
@@ -232,6 +237,9 @@ def register_callbacks(app, stylesheet):
                   [Input('data-activated-nodes', 'data')])
     def update_download_link(activations_data):
         if activations_data is not None:
+
+            
+
             result = io.StringIO()
             writer = csv.writer(result)
             for list in activations_data:
@@ -239,4 +247,13 @@ def register_callbacks(app, stylesheet):
             csv_string = "data:text/csv;charset=utf-8," + result.getvalue()
             return csv_string
         else:
-            return ''
+            # dff = pd.DataFrame([[1,2,3], [4,12]], columns=['model', 'treshold'])
+            # csv_string = dff.to_csv(index=False, encoding='utf-8')
+
+            result = io.StringIO()
+            writer = csv.writer(result)
+            for list in [[1,2,3], [1,2,3,4,66]]:
+                writer.writerow(list)
+
+            csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(result.getvalue())
+            return csv_string
