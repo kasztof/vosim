@@ -157,17 +157,16 @@ app.layout = html.Div([
 
         html.Div([
             html.A(
-                children=[
-                    dbc.Button(
-                        'Download activations',
-                        color='success',
-                        block=True
-                    )
-                ],
+                'Download activations',
                 id='download-link',
-                download="rawdata.csv",
-                href="",
-                target="_blank"
+                download='rawdata.csv',
+                target='_blank',
+                className='btn btn-success btn-block disabled'
+            ),
+
+            html.Table(
+                id='table-network-info',
+                children=[],
             )
         ],
             id='network-info-panel'
