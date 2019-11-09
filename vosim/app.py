@@ -162,6 +162,11 @@ app.layout = html.Div([
                 download='rawdata.csv',
                 target='_blank',
                 className='btn btn-success btn-block disabled'
+            ),
+
+            html.Table(
+                id='table-network-info',
+                children=[],
             )
         ],
             id='network-info-panel'

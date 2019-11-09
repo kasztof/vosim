@@ -1,7 +1,7 @@
 from dash.dependencies import Input, Output, State, ClientsideFunction
 from influ.finder.model import independent_cascade
 from influ import reader
-from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics
+from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics, get_network_info
 import dash_html_components as html
 
 from .options import initial_nodes_method_options
@@ -18,24 +18,30 @@ def register_callbacks(app, stylesheet):
                    Output('table-graph-stats', 'children'),
                    Output('layout-tab', 'disabled'),
                    Output('simulation-tab', 'disabled'),
-                   Output('statistics-tab', 'disabled')],
+                   Output('statistics-tab', 'disabled'),
+                   Output('table-network-info', 'children')],
                   [Input('upload-data', 'contents'),
                    Input('load-konect-network', 'n_clicks')],
-                  [State('konect-networks-dropdown', 'value')])
-    def load_network(upload_content, n_clicks, konect_network_name):
+                  [State('konect-networks-dropdown', 'value'),
+                   State('upload-data', 'filename')])
+    def load_network(upload_content, n_clicks, konect_network_name, upload_filename):
         graph = None
+        network_name = ''
 
         if upload_content is not None:
             graph = get_graph(upload_content)
+            network_name = upload_filename
         elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
+            network_name = konect_network_name
 
 
         if graph is not None:
             
             degrees_histogram_data = get_degree_distribution_data(graph)
             graph_stats = get_graph_statistics(graph)
+            network_info = get_network_info(network_name, graph)
 
             degree_hist_figure = {
                 'data': [
@@ -62,13 +68,17 @@ def register_callbacks(app, stylesheet):
                 }
             }
 
-            table_content = [html.Tr([
+            table_graph_stats = [html.Tr([
                 html.Td(stat), html.Td(graph_stats[stat])
             ]) for stat in graph_stats]
 
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), degree_hist_figure, table_content, False, False, False
+            table_network_info = [html.Tr([
+                html.Td(stat), html.Td(network_info[stat])
+            ]) for stat in network_info]
+
+            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), degree_hist_figure, table_graph_stats, False, False, False, table_network_info
         else:
-            return [], None, [], [], True, True, True
+            return [], None, [], [], True, True, True, ''
     
     @app.callback([Output('data-activated-nodes', 'data'),
                    Output('slider', 'value'),

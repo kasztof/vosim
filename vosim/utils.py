@@ -95,3 +95,13 @@ def get_graph_statistics(graph):
         'Clustering coefficient': str(round(graph.transitivity_undirected() * 100, 2)) + '%',
         'Diameter': str(graph.diameter(directed=False)) + ' edges',
     }
+
+
+def get_network_info(network_name, graph):
+    print(graph.is_directed())
+    return {
+        'Network name:': network_name,
+        'Size:': str(graph.vcount()) + ' vertices',
+        'Volume:': str(graph.ecount()) + ' edges',
+        'Directed:': str(graph.is_directed())
+    }
