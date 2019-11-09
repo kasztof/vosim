@@ -6,11 +6,8 @@ import dash_html_components as html
 
 from .options import initial_nodes_method_options
 
-import pandas as pd
 import urllib.parse
-
 import io
-from flask import make_response
 import csv
 import pickle
 
@@ -76,15 +73,17 @@ def register_callbacks(app, stylesheet):
     @app.callback([Output('data-activated-nodes', 'data'),
                    Output('slider', 'value'),
                    Output('slider', 'max'),
-                   Output('slider', 'marks')],
+                   Output('slider', 'marks'),
+                   Output('download-link', 'className')],
                   [Input('start-button', 'n_clicks')],
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
                    State('treshold', 'value'),
                    State('data-selected-nodes', 'data'),
                    State('initial-nodes-method-dropdown','value'),
-                   State('initial-nodes-number', 'value')])
-    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
+                   State('initial-nodes-number', 'value'),
+                   State('download-link', 'className')])
+    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num, download_link_class):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None:
             graph = pickle.loads((graph_pickled.encode()))
 
@@ -99,8 +98,8 @@ def register_callbacks(app, stylesheet):
             slider_max = len(result) - 1
             slider_marks = {i: '{}'.format(i) for i in range(len(result))}
 
-            return result, slider_value, slider_max, slider_marks,
-        return None, 0, 0, {}
+            return result, slider_value, slider_max, slider_marks, download_link_class.rsplit(' ', 1)[0]
+        return None, 0, 0, {}, download_link_class
     
     @app.callback(Output('initial-nodes-number', 'disabled'),
                   [Input('initial-nodes-method-dropdown', 'value')])
@@ -237,23 +236,11 @@ def register_callbacks(app, stylesheet):
                   [Input('data-activated-nodes', 'data')])
     def update_download_link(activations_data):
         if activations_data is not None:
-
-            
-
             result = io.StringIO()
             writer = csv.writer(result)
             for list in activations_data:
                 writer.writerow(list)
-            csv_string = "data:text/csv;charset=utf-8," + result.getvalue()
+            csv_string = 'data:text/csv;charset=utf-8,' + urllib.parse.quote(result.getvalue())
             return csv_string
         else:
-            # dff = pd.DataFrame([[1,2,3], [4,12]], columns=['model', 'treshold'])
-            # csv_string = dff.to_csv(index=False, encoding='utf-8')
-
-            result = io.StringIO()
-            writer = csv.writer(result)
-            for list in [[1,2,3], [1,2,3,4,66]]:
-                writer.writerow(list)
-
-            csv_string = "data:text/csv;charset=utf-8," + urllib.parse.quote(result.getvalue())
-            return csv_string
+            return ''
