@@ -23,6 +23,7 @@ with open(PROJECT_ROOT + '/vosim/assets/style.json', 'r') as f:
 
 cyto.load_extra_layouts()
 
+
 app.layout = html.Div([
     html.Div([
         dbc.Tabs(
@@ -152,6 +153,24 @@ app.layout = html.Div([
                     disabled=True,
                 )
             ]
+        ),
+
+        html.Div([
+            html.A(
+                children=[
+                    dbc.Button(
+                        'Download activations',
+                        color='success',
+                        block=True
+                    )
+                ],
+                id='download-link',
+                download="rawdata.csv",
+                href="",
+                target="_blank"
+            )
+        ],
+            id='network-info-panel'
         ),
 
         html.Pre(id='output-activated-nodes'),

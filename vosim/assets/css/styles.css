@@ -40,6 +40,15 @@
     padding-top: 5px;
 }
 
+#network-info-panel {
+    height: calc(30.5vh - 5px);
+    margin-top: 5px;
+    padding: 5px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: whitesmoke;
+}
+
 .upload-panel {
     margin-bottom: 10px;
 }
@@ -153,7 +162,7 @@
 }
 
 .tab-content {
-    height: 350px;
+    height: 61.5vh;
     background-color: whitesmoke;
     border: 1px solid transparent;
     border-color: #dee2e6;
