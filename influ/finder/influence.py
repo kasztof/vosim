@@ -127,13 +127,14 @@ class SeedFinder:
 
         :return: list of vertices indices sorted by degree
         """
-        results = []
-        for subgraph in self.graphs:
-            degree = np.array(subgraph.degree())
-            argi = np.argsort(-degree).tolist()
-            results.append(subgraph.vs.select(argi)['id'])
+        degrees = []
 
-        return self._merge_results(results)
+        for node in self.graph.vs:
+            degrees.append({'id': node['id'], 'degree': node.degree()})
+
+        sorted_degrees = sorted(degrees, key=lambda k: -k['degree'])
+        sorted_ids = [node['id'] for node in sorted_degrees]
+        return sorted_ids[:self.n]
 
     def by_betweenness(self) -> List[int]:
         """
