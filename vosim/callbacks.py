@@ -18,7 +18,8 @@ def register_callbacks(app, stylesheet):
                    Output('layout-tab', 'disabled'),
                    Output('simulation-tab', 'disabled'),
                    Output('statistics-tab', 'disabled'),
-                   Output('table-network-info', 'children')],
+                   Output('table-network-info', 'children'),
+                   Output('konect-networks-dropdown', 'value')],
                   [Input('upload-data', 'contents'),
                    Input('load-konect-network', 'n_clicks')],
                   [State('konect-networks-dropdown', 'value'),
@@ -27,14 +28,13 @@ def register_callbacks(app, stylesheet):
         graph = None
         network_name = ''
 
-        if upload_content is not None:
-            graph = get_graph(upload_content)
-            network_name = upload_filename
-        elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
+        if n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
             network_name = konect_network_name
-
+        elif upload_content is not None:
+            graph = get_graph(upload_content)
+            network_name = upload_filename
 
         if graph is not None:
             
@@ -75,9 +75,9 @@ def register_callbacks(app, stylesheet):
                 html.Td(stat), html.Td(network_info[stat])
             ]) for stat in network_info]
 
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), degree_hist_figure, table_graph_stats, False, False, False, table_network_info
+            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), degree_hist_figure, table_graph_stats, False, False, False, table_network_info, None
         else:
-            return [], None, [], [], True, True, True, ''
+            return [], None, [], [], True, True, True, '', None
     
     @app.callback([Output('data-activated-nodes', 'data'),
                    Output('slider', 'value'),
