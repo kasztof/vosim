@@ -139,6 +139,15 @@
     font-weight: bold;
 }
 
+#table-network-info {
+    margin: 5px;
+}
+
+#table-network-info td:first-child {
+    font-weight: bold;
+    width: 55%;
+}
+
 
 /* Bootstrap  styles override */
 
@@ -177,4 +186,8 @@
     padding-bottom: 5%;
     height: 92vh;
     background-color: #ffffff;
+}
+
+.rc-slider-mark-text {
+    top: -5px;
 }
