@@ -254,3 +254,11 @@ def register_callbacks(app, stylesheet):
             return csv_string
         else:
             return ''
+
+    @app.callback(Output('treshold', 'disabled'),
+                  [Input('model-dropdown', 'value')])
+    def treshold_input_state(model):
+        if model == 'lintres':
+            return True
+        else:
+            return False
