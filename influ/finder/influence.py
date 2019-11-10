@@ -2,6 +2,7 @@ from heapq import heapify, heappop, heapreplace
 from itertools import combinations, cycle, islice
 from typing import Any, Optional, List, Union
 from warnings import warn
+from random import sample
 
 import igraph as ig
 import numpy as np
@@ -158,6 +159,9 @@ class SeedFinder:
             g = self.graph
         transitivity = np.array(g.transitivity_local_undirected())
         return self._postprocess_result(np.argsort(-transitivity))
+
+    def by_random(self) -> List[int]:
+        return sample(range(self.graph.vcount()), self.n)
 
     def _define_spread(self, model: Model, threshold: ThresholdV, depth: int, count=True):
         fcn = get_model(model)

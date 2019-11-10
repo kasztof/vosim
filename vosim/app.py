@@ -17,12 +17,12 @@ DOTENV_PATH = join(dirname(__file__), '../.env')
 load_dotenv(DOTENV_PATH)
 
 PROJECT_ROOT = os.environ.get('PROJECT_ROOT')
-PORT = os.environ.get('PORT')
 
 with open(PROJECT_ROOT + '/vosim/assets/style.json', 'r') as f:
     STYLESHEET = json.loads(f.read())
 
 cyto.load_extra_layouts()
+
 
 app.layout = html.Div([
     html.Div([
@@ -79,6 +79,7 @@ app.layout = html.Div([
                 
                 dbc.Tab(
                     label='Simulation',
+                    id='simulation-tab',
                     children=[
                         dcc.Dropdown(
                             id='layout-dropdown',
@@ -133,11 +134,13 @@ app.layout = html.Div([
                         ]),
 
                         dbc.Button('Start', id='start-button', color='primary'),
-                    ]
+                    ],
+                    disabled=True,
                 ),
                 
                 dbc.Tab(
                     label='Layout',
+                    id='layout-tab',
                     children=[
                         dcc.Dropdown(
                             id='node-size-dropdown',
@@ -146,9 +149,27 @@ app.layout = html.Div([
                             clearable=False,
                             value='degree',
                         )
-                    ]
+                    ],
+                    disabled=True,
                 )
             ]
+        ),
+
+        html.Div([
+            html.A(
+                'Download activations',
+                id='download-link',
+                download='rawdata.csv',
+                target='_blank',
+                className='btn btn-success btn-block disabled'
+            ),
+
+            html.Table(
+                id='table-network-info',
+                children=[],
+            )
+        ],
+            id='network-info-panel'
         ),
 
         html.Pre(id='output-activated-nodes'),
@@ -165,31 +186,88 @@ app.layout = html.Div([
     ),
 
     html.Div([
-        cyto.Cytoscape(
-            id='cytoscape-elements',
-            style={'width': '100%', 'height': '85vh'},
-            layout={
-                'name': 'cose',
-                'randomize': True,
-            },
-            elements=[],
-            stylesheet=STYLESHEET
-        ),
-    ],
-        className='network'
-    ),
+        dbc.Tabs(
+            id='visualisation-tabs',
+            children = [
+                dbc.Tab(
+                    label='Network',
+                    children=[
+                        cyto.Cytoscape( 
+                            id='cytoscape-elements',
+                            style={'width': '100%', 'height': '85vh'},
+                            layout={
+                                'name': 'cose',
+                                'randomize': True,
+                            },
+                            elements=[],
+                            stylesheet=STYLESHEET
+                        ),
 
-    html.Div([
-        dcc.Slider(
-            id='slider',
-            step=1,
-            min=0,
-            max=10,
-            marks={i: '{}'.format(i) for i in range(4)},
-            updatemode='drag'
+                        html.Div([
+                            html.Span(
+                                'Iteration:',
+                                id='iterations-label'
+                            ),
+                            dcc.Slider(
+                                id='slider',
+                                step=1,
+                                min=0,
+                                max=10,
+                                marks={i: '{}'.format(i) for i in range(4)},
+                                updatemode='drag'
+                            )
+                        ],
+                            className='bottom-slider'
+                        ),
+                    ]
+                ),
+
+                dbc.Tab(
+                    label='Statistics',
+                    id='statistics-tab',
+                    children=[
+                        dcc.Graph(
+                            id='graph-degree-distribution',
+                            figure={
+                                'data': [],
+                                'layout': {}
+                            },
+                        ),
+
+                        html.Div(
+                            id='div-table-graph-stats',
+                            children=[
+                                html.Table(
+                                    id='table-graph-stats',
+                                    children=[],
+                                )
+                            ]
+                        ),
+
+                        dcc.Graph(
+                            id='activations-graph',
+                            figure={
+                                'data': [],
+                                'layout': {
+                                    'title':'Run simulation to generate this plot',
+                                    'xaxis': {
+                                        'title':'Iteration i',
+                                        'tick0': 0,
+                                        'dtick': 1,
+                                    },
+                                    'yaxis': {
+                                        'title':'Number of activated nodes',
+                                    },
+                                }
+                            }
+                        )
+                    ],
+                    disabled=True,
+                )
+            ]
         )
     ],
-        className='bottom-slider'
+        className='right-panel'
     ),
 ])
 

@@ -1,61 +1,115 @@
-from dash.dependencies import Input, Output, State
-from influ.finder.model import independent_cascade
-from influ.finder.influence import SeedFinder
+from dash.dependencies import Input, Output, State, ClientsideFunction
 from influ import reader
-from vosim.utils import get_graph, get_network_from_graph
+from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_model_result, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics, get_network_info
+import dash_html_components as html
+
+from .options import initial_nodes_method_options
+
+import urllib.parse
+import io
+import csv
 import pickle
 
 def register_callbacks(app, stylesheet):
     @app.callback([Output('cytoscape-elements', 'elements'),
-                   Output('graph-pickled', 'data')],
+                   Output('graph-pickled', 'data'),
+                   Output('graph-degree-distribution', 'figure'),
+                   Output('table-graph-stats', 'children'),
+                   Output('layout-tab', 'disabled'),
+                   Output('simulation-tab', 'disabled'),
+                   Output('statistics-tab', 'disabled'),
+                   Output('table-network-info', 'children')],
                   [Input('upload-data', 'contents'),
                    Input('load-konect-network', 'n_clicks')],
-                  [State('konect-networks-dropdown', 'value')])
-    def load_network(upload_content, n_clicks, konect_network_name):
+                  [State('konect-networks-dropdown', 'value'),
+                   State('upload-data', 'filename')])
+    def load_network(upload_content, n_clicks, konect_network_name, upload_filename):
+        graph = None
+        network_name = ''
+
         if upload_content is not None:
             graph = get_graph(upload_content)
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode() 
+            network_name = upload_filename
         elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
-            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode() 
-        return [], None
+            network_name = konect_network_name
+
+
+        if graph is not None:
+            
+            degrees_histogram_data = get_degree_distribution_data(graph)
+            graph_stats = get_graph_statistics(graph)
+            network_info = get_network_info(network_name, graph)
+
+            degree_hist_figure = {
+                'data': [
+                    {
+                        'type': 'scatter',
+                        'mode': 'markers',
+                        'y': list(degrees_histogram_data.values()),
+                        'x': list(degrees_histogram_data.keys()),
+                    }
+                ],
+                'layout': {
+                    'title':'Degree distribution',
+                    'showlegend': False,
+                    'xaxis': {
+                        'title':'Degree (d)',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                    'yaxis': {
+                        'title': 'Frequency',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                }
+            }
+
+            table_graph_stats = [html.Tr([
+                html.Td(stat), html.Td(graph_stats[stat])
+            ]) for stat in graph_stats]
+
+            table_network_info = [html.Tr([
+                html.Td(stat), html.Td(network_info[stat])
+            ]) for stat in network_info]
+
+            return get_network_from_graph(graph), pickle.dumps(graph, 0).decode(), degree_hist_figure, table_graph_stats, False, False, False, table_network_info
+        else:
+            return [], None, [], [], True, True, True, ''
     
     @app.callback([Output('data-activated-nodes', 'data'),
                    Output('slider', 'value'),
                    Output('slider', 'max'),
-                   Output('slider', 'marks')],
+                   Output('slider', 'marks'),
+                   Output('download-link', 'className')],
                   [Input('start-button', 'n_clicks')],
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
                    State('treshold', 'value'),
+                   State('model-dropdown', 'value'),
                    State('data-selected-nodes', 'data'),
                    State('initial-nodes-method-dropdown','value'),
-                   State('initial-nodes-number', 'value')])
-    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
+                   State('initial-nodes-number', 'value'),
+                   State('download-link', 'className')])
+    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, model, initial_nodes, init_nodes_method, init_nodes_num, download_link_class):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None:
             graph = pickle.loads((graph_pickled.encode()))
 
-            finder = SeedFinder(graph, init_nodes_num)
-
-            init_nodes = []
-            if init_nodes_method == 'degree':
-                init_nodes = finder.by_degree()
-            elif init_nodes_method == 'betweenness':
-                init_nodes = finder.by_betweenness()
-            elif init_nodes_method == 'clustering_coeff':
-                init_nodes = finder.by_clustering_coefficient()
-            else:
+            if init_nodes_method == 'manual':
                 init_nodes = initial_nodes
+            else:
+                init_nodes = get_init_nodes(graph, init_nodes_method, init_nodes_num)
 
-            result = independent_cascade(graph, init_nodes, depth=depth, threshold=treshold)
+            result = get_model_result(graph, model, init_nodes, depth, treshold)
     
             slider_value = 0
             slider_max = len(result) - 1
             slider_marks = {i: '{}'.format(i) for i in range(len(result))}
 
-            return result, slider_value, slider_max, slider_marks,
-        return None, 0, 0, {}
+            return result, slider_value, slider_max, slider_marks, download_link_class.rsplit(' ', 1)[0]
+        return None, 0, 0, {}, download_link_class
     
     @app.callback(Output('initial-nodes-number', 'disabled'),
                   [Input('initial-nodes-method-dropdown', 'value')])
@@ -134,10 +188,77 @@ def register_callbacks(app, stylesheet):
             return [int(node['id'])for node in selected_nodes]
         return []
 
-    @app.callback(Output("modal", "is_open"),
-                  [Input("open-konect-modal", "n_clicks"), Input("close-konect-modal", "n_clicks")],
-                  [State("modal", "is_open")])
+    @app.callback(Output('modal', 'is_open'),
+                  [Input('open-konect-modal', 'n_clicks'), Input('close-konect-modal', 'n_clicks')],
+                  [State('modal', 'is_open')])
     def toggle_modal(n1, n2, is_open):
         if n1 or n2:
             return not is_open
         return is_open
+
+
+    @app.callback(Output('activations-graph', 'figure'),
+                  [Input('start-button', 'n_clicks')],
+                  [State('graph-pickled', 'data'),
+                   State('depth-limit', 'value'),
+                   State('treshold', 'value'),
+                   State('data-selected-nodes', 'data'),
+                   State('initial-nodes-method-dropdown','value'),
+                   State('initial-nodes-number', 'value')])
+    def generate_statistics(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
+        if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None and treshold is not None and depth is not None:
+            print('run')
+            graph = pickle.loads((graph_pickled.encode()))
+
+            init_nodes_methods = [option['value'] for option in initial_nodes_method_options]
+
+            if initial_nodes == []:
+                init_nodes_methods.remove('manual')
+            
+            activated_nodes_data = get_methods_activated_nodes_data(graph, init_nodes_num, init_nodes_methods, depth, treshold, initial_nodes)
+
+            activations_figure = {
+                'data': [
+                    {
+                        'type': 'scatter',
+                        'y': activated_nodes_data[method],
+                        'name': method,
+                    } for method in activated_nodes_data
+                ],
+                'layout': {
+                    'title':'Activated nodes in iteration i',
+                    'xaxis': {
+                        'title':'Iteration i',
+                        'tick0': 0,
+                        'dtick': 1,
+                    },
+                    'yaxis': {
+                        'title':'Number of activated nodes',
+                    },
+                }
+            }
+
+            return activations_figure
+        return {}
+
+
+    @app.callback(Output('download-link', 'href'),
+                  [Input('data-activated-nodes', 'data')])
+    def update_download_link(activations_data):
+        if activations_data is not None:
+            result = io.StringIO()
+            writer = csv.writer(result)
+            for list in activations_data:
+                writer.writerow(list)
+            csv_string = 'data:text/csv;charset=utf-8,' + urllib.parse.quote(result.getvalue())
+            return csv_string
+        else:
+            return ''
+
+    @app.callback(Output('treshold', 'disabled'),
+                  [Input('model-dropdown', 'value')])
+    def treshold_input_state(model):
+        if model == 'lintres':
+            return True
+        else:
+            return False

@@ -1,13 +1,35 @@
 .bottom-slider {
-    width: 90%;
-    display: inline-block;
-    margin-left: 7%;
+    width: 100%;
+    height: 7vh;
+    border-top: 1px solid #dee2e6;
 }
 
-.network {
+.bottom-slider:before {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+  }
+
+#iterations-label {
+    vertical-align: middle;
+    display: inline-block;
+    padding-left: 2%;
+    padding-right: 2%;
+}
+
+#slider {
+    vertical-align: middle;
+    display: inline-block;
+    width: 89%;
+    margin: auto; 
+}
+
+.right-panel {
     width: 80%;
     display: inline-block;
     float: right;
+    padding: 5px;
 }
 
 .left-panel {
@@ -16,6 +38,15 @@
     display: inline-block;
     padding-left: 5px;
     padding-top: 5px;
+}
+
+#network-info-panel {
+    height: calc(30.5vh - 5px);
+    margin-top: 5px;
+    padding: 5px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background-color: whitesmoke;
 }
 
 .upload-panel {
@@ -68,6 +99,55 @@
     border: 1px solid #ccc;
 }
 
+#activations-graph {
+    height: 40vh;
+    width: 75vw;
+}
+
+#graph-degree-distribution {
+    height: 40vh;
+    width: 40vw;
+    display: inline-block;
+}
+
+#div-table-graph-stats {
+    display: inline-block;
+    height: 40vh;
+    width: 35vw;
+}
+
+#table-graph-stats {
+    border-collapse: collapse;
+    width: 75%;
+    margin: 10% auto;
+}
+  
+#table-graph-stats td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+  
+#table-graph-stats tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+  
+#table-graph-stats tr:hover {
+    background-color: #ddd;
+}
+
+#table-graph-stats td:first-child {
+    font-weight: bold;
+}
+
+#table-network-info {
+    margin: 5px;
+}
+
+#table-network-info td:first-child {
+    font-weight: bold;
+    width: 55%;
+}
+
 
 /* Bootstrap  styles override */
 
@@ -91,7 +171,7 @@
 }
 
 .tab-content {
-    height: 350px;
+    height: 61.5vh;
     background-color: whitesmoke;
     border: 1px solid transparent;
     border-color: #dee2e6;
@@ -99,4 +179,15 @@
     border-bottom-right-radius: 5px;
     border-top-right-radius: 5px;
     padding: 5%;
+}
+
+.right-panel .tab-content {
+    padding: 0;
+    padding-bottom: 5%;
+    height: 92vh;
+    background-color: #ffffff;
+}
+
+.rc-slider-mark-text {
+    top: -5px;
 }
