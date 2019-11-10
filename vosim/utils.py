@@ -5,7 +5,7 @@ from igraph import mean
 
 from influ import reader
 from influ.finder.influence import SeedFinder
-from influ.finder.model import independent_cascade
+from influ.finder.model import independent_cascade, linear_threshold
 
 
 
@@ -60,6 +60,13 @@ def get_init_nodes(graph, init_nodes_method, init_nodes_num):
         init_nodes = finder.by_random()
 
     return init_nodes
+
+
+def get_model_result(graph, model, init_nodes, depth, treshold):
+    if model == 'lintres':
+        return linear_threshold(graph, init_nodes, depth=depth, threshold=treshold)
+    else:
+        return independent_cascade(graph, init_nodes, depth=depth, threshold=treshold)
 
 
 def get_methods_activated_nodes_data(graph, init_nodes_num, methods_list, depth, threshold, manual_init_nodes=None):

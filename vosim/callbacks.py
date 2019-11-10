@@ -1,7 +1,6 @@
 from dash.dependencies import Input, Output, State, ClientsideFunction
-from influ.finder.model import independent_cascade
 from influ import reader
-from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics, get_network_info
+from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_model_result, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics, get_network_info
 import dash_html_components as html
 
 from .options import initial_nodes_method_options
@@ -89,11 +88,12 @@ def register_callbacks(app, stylesheet):
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
                    State('treshold', 'value'),
+                   State('model-dropdown', 'value'),
                    State('data-selected-nodes', 'data'),
                    State('initial-nodes-method-dropdown','value'),
                    State('initial-nodes-number', 'value'),
                    State('download-link', 'className')])
-    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num, download_link_class):
+    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, model, initial_nodes, init_nodes_method, init_nodes_num, download_link_class):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None:
             graph = pickle.loads((graph_pickled.encode()))
 
@@ -102,7 +102,7 @@ def register_callbacks(app, stylesheet):
             else:
                 init_nodes = get_init_nodes(graph, init_nodes_method, init_nodes_num)
 
-            result = independent_cascade(graph, init_nodes, depth=depth, threshold=treshold)
+            result = get_model_result(graph, model, init_nodes, depth, treshold)
     
             slider_value = 0
             slider_max = len(result) - 1
@@ -254,3 +254,11 @@ def register_callbacks(app, stylesheet):
             return csv_string
         else:
             return ''
+
+    @app.callback(Output('treshold', 'disabled'),
+                  [Input('model-dropdown', 'value')])
+    def treshold_input_state(model):
+        if model == 'lintres':
+            return True
+        else:
+            return False
