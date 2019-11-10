@@ -48,10 +48,7 @@ def _df_to_graph(data: pd.DataFrame, directed: bool = True) -> ig.Graph:
     """
     _from, _to, *_attrs = data.columns
     # shift = int(min(data.min()[:2])) # wartosc odpowiadajaca najmniejszemu indeksowi wezla?
-    shift = 0
-    print(shift)
-    edges = list(zip(data[_from].astype(int) - shift, data[_to].astype(int) - shift))
-    print(edges)
+    edges = list(zip(data[_from].astype(int), data[_to].astype(int)))
     edge_attributes = {attr: data[attr].tolist() for attr in _attrs}
     graph = ig.Graph(edges=edges, edge_attrs=edge_attributes, directed=directed)
 

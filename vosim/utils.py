@@ -22,6 +22,7 @@ def get_network_from_graph(graph, file_format: str = 'events') -> list:
         {
             'data': {
                 'id': node['id'],
+                'id_vosim': node['id'],
                 'label': node['label'],
                 'degree': degree,
                 'betweenness': betweenness,
@@ -105,7 +106,6 @@ def get_graph_statistics(graph):
 
 
 def get_network_info(network_name, graph):
-    print(graph.is_directed())
     return {
         'Network name:': network_name,
         'Size:': str(graph.vcount()) + ' vertices',
