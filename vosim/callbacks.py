@@ -23,14 +23,16 @@ def register_callbacks(app, stylesheet):
                    Input('load-konect-network', 'n_clicks')],
                   [State('upload-data', 'contents'),
                    State('konect-networks-dropdown', 'value'),
-                   State('is-directed-checkbox', 'value')])
-    def load_network(load_data_button, n_clicks, upload_content, konect_network_name, is_directed):
+                   State('is-directed-checkbox', 'value'),
+                   State('upload-data', 'filename')])
+    def load_network(load_data_button, n_clicks, upload_content, konect_network_name, is_directed, upload_network_name):
         graph = None
         network_name = ''
 
         if upload_content is not None and load_data_button !=0 and load_data_button is not None:
             directed = True if is_directed is not None else False
             graph = get_graph(upload_content, directed=directed)
+            network_name = upload_network_name
         elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
