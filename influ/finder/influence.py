@@ -130,7 +130,9 @@ class SeedFinder:
         degrees = []
 
         for node in self.graph.vs:
-            degrees.append({'id': node['id'], 'degree': node.degree()})
+            degrees.append({'id': node['id'] - 1, 'degree': node.degree()})
+
+        print(degrees)
 
         sorted_degrees = sorted(degrees, key=lambda k: -k['degree'])
         sorted_ids = [node['id'] for node in sorted_degrees]

@@ -127,11 +127,10 @@ def register_callbacks(app, stylesheet):
                    Input('node-size-dropdown', 'value')],
                   [State('graph-pickled', 'data')])
     def update_active_nodes(slider_value, data, node_size_metric, graph_pickled):
-        graph = pickle.loads((graph_pickled.encode()))
         if slider_value is not None and data is not None:
             activated_nodes = [
                 {
-                    'selector': '[id_vosim = ' + str(node_id) + ']',
+                    'selector': '[id_vosim = ' + str(node_id + 1) + ']',
                     'style': {
                         'background-color': 'red'
                     }
@@ -142,7 +141,7 @@ def register_callbacks(app, stylesheet):
 
             newly_activated_styles = [
                 {
-                    'selector': '[id_vosim = ' + str(node_id) + ']',
+                    'selector': '[id_vosim = ' + str(node_id + 1) + ']',
                     'style': {
                         'border-width': '1px',
                         'border-color': 'green'
@@ -163,16 +162,20 @@ def register_callbacks(app, stylesheet):
                 }
             ]
 
-            directed_edges = [
-                {
-                    'selector': '#' + str(e.source + 1) + '-' + str(e.target + 1),
-                    'style': {
-                        'target-arrow-color': 'blue',
-                        'target-arrow-shape': 'triangle',
-                        'arrow-scale': 0.3,
-                    }
-                } for e in graph.es
-            ]
+            if graph_pickled is not None:
+                graph = pickle.loads((graph_pickled.encode()))
+                directed_edges = [
+                    {
+                        'selector': '#' + str(e.source + 1) + '-' + str(e.target + 1),
+                        'style': {
+                            'target-arrow-color': 'blue',
+                            'target-arrow-shape': 'triangle',
+                            'arrow-scale': 0.3,
+                        }
+                    } for e in graph.es
+                ]
+            else:
+                directed_edges = []
 
             return stylesheet + activated_nodes + newly_activated_styles + node_size_metric_style + directed_edges
 

@@ -85,8 +85,10 @@ def independent_cascade(graph: ig.Graph, initial_ids: List[int], threshold: Opti
     all_activations = [initial_ids]
 
     new_influenced = initial_ids
+    print(initial_ids)
     i = 0
     while len(new_influenced) > 0 and i < depth:
+        # print(new_influenced)
         influencers = g.vs.select(new_influenced)
         new_influenced = []
 
