@@ -9,11 +9,11 @@ from influ.finder.model import independent_cascade, linear_threshold
 
 
 
-def get_graph(content: str, file_format: str = 'events'):
+def get_graph(content: str, file_format: str = 'events', directed: bool = False):
     _, content_string = content.split(',')
     decoded = base64.b64decode(content_string)
     string_io = io.StringIO(decoded.decode('utf-8'))
-    graph = reader.read_graph(string_io, file_format)
+    graph = reader.read_graph(string_io, file_format, directed=directed)
     return graph
 
 
