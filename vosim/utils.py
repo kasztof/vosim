@@ -39,6 +39,7 @@ def get_network_from_graph(graph, file_format: str = 'events') -> list:
             'data': {
                 'source': e.source + 1,
                 'target': e.target + 1,
+                'id': str(e.source + 1) + '-' + str(e.target + 1)
             }
         }
         for e in graph.es

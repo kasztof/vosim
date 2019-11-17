@@ -124,8 +124,10 @@ def register_callbacks(app, stylesheet):
     @app.callback(Output('cytoscape-elements', 'stylesheet'),
                   [Input('slider', 'value'),
                    Input('data-activated-nodes', 'data'),
-                   Input('node-size-dropdown', 'value')])
-    def update_active_nodes(slider_value, data, node_size_metric):
+                   Input('node-size-dropdown', 'value')],
+                  [State('graph-pickled', 'data')])
+    def update_active_nodes(slider_value, data, node_size_metric, graph_pickled):
+        graph = pickle.loads((graph_pickled.encode()))
         if slider_value is not None and data is not None:
             activated_nodes = [
                 {
@@ -161,7 +163,18 @@ def register_callbacks(app, stylesheet):
                 }
             ]
 
-            return stylesheet + activated_nodes + newly_activated_styles + node_size_metric_style
+            directed_edges = [
+                {
+                    'selector': '#' + str(e.source + 1) + '-' + str(e.target + 1),
+                    'style': {
+                        'target-arrow-color': 'blue',
+                        'target-arrow-shape': 'triangle',
+                        'arrow-scale': 0.3,
+                    }
+                } for e in graph.es
+            ]
+
+            return stylesheet + activated_nodes + newly_activated_styles + node_size_metric_style + directed_edges
 
         if node_size_metric is not None:
             rule = "mapData(" + node_size_metric + ", 1, 50, 2, 15)" if node_size_metric != 'clustering_coeff' \
