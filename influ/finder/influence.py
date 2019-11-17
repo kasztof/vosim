@@ -228,7 +228,6 @@ class SeedFinder:
             if current_score > best_score:
                 best_seeds = seeds
                 best_score = current_score
-        print(list(best_seeds))
         return list(best_seeds)
 
     def CELFpp(self, model: Model = Model.LinearThreshold, threshold: Optional[ThresholdV] = None,
@@ -288,7 +287,6 @@ class SeedFinder:
                 curr_best = u.vid
             heapreplace(heap, u)
 
-        # print (self._postprocess_result(seeds))
         return self._postprocess_result(seeds)
 
     def plot_influence(self, seeds: List[int], model: Model = Model.LinearThreshold,

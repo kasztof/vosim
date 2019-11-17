@@ -26,7 +26,7 @@ def read_graph(filepath: str, file_format: Optional[str] = None, **kwargs) -> ig
 
     if 'id' in g.vs.attributes():
         g.vs['origin_id'] = g.vs['id']
-    g.vs['id'] = range(len(g.vs))
+    g.vs['id'] = range(1, len(g.vs) + 1)
 
     return merge_edges(g)
 
@@ -47,7 +47,16 @@ def _df_to_graph(data: pd.DataFrame, directed: bool = True) -> ig.Graph:
     :return: igraph Graph object
     """
     _from, _to, *_attrs = data.columns
-    shift = int(min(data.min()[:2]))
-    edges = list(zip(data[_from].astype(int) - shift, data[_to].astype(int) - shift))
+    # shift = int(min(data.min()[:2])) # wartosc odpowiadajaca najmniejszemu indeksowi wezla?
+    edges = list(zip(data[_from].astype(int), data[_to].astype(int)))
     edge_attributes = {attr: data[attr].tolist() for attr in _attrs}
-    return ig.Graph(edges=edges, edge_attrs=edge_attributes, directed=directed)
+    graph = ig.Graph(edges=edges, edge_attrs=edge_attributes, directed=directed)
+
+    origin_ids = []
+    for n in graph.vs:
+        origin_ids.append(n.index)
+    graph.vs['label'] = origin_ids
+    
+    to_delete_ids = [v.index for v in graph.vs if v.degree() == 0]
+    graph.delete_vertices(to_delete_ids)
+    return graph

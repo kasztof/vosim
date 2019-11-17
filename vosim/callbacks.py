@@ -129,7 +129,7 @@ def register_callbacks(app, stylesheet):
         if slider_value is not None and data is not None:
             activated_nodes = [
                 {
-                    'selector': '[label = ' + str(node_id) + ']',
+                    'selector': '[id_vosim = ' + str(node_id) + ']',
                     'style': {
                         'background-color': 'red'
                     }
@@ -140,7 +140,7 @@ def register_callbacks(app, stylesheet):
 
             newly_activated_styles = [
                 {
-                    'selector': '[label = ' + str(node_id) + ']',
+                    'selector': '[id_vosim = ' + str(node_id) + ']',
                     'style': {
                         'border-width': '1px',
                         'border-color': 'green'
@@ -224,7 +224,6 @@ def register_callbacks(app, stylesheet):
                    State('initial-nodes-number', 'value')])
     def generate_statistics(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None and treshold is not None and depth is not None:
-            print('run')
             graph = pickle.loads((graph_pickled.encode()))
 
             init_nodes_methods = [option['value'] for option in initial_nodes_method_options]

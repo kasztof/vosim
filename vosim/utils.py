@@ -21,23 +21,24 @@ def get_network_from_graph(graph, file_format: str = 'events') -> list:
     nodes = [
         {
             'data': {
-                'id': node_id,
-                'label': node_id,
+                'id': node['id'],
+                'id_vosim': node['id'],
+                'label': node['label'],
                 'degree': degree,
                 'betweenness': betweenness,
                 'clustering_coeff': clustering_coeff
             },
         }
-        for node_id, degree, betweenness, clustering_coeff in (
-            zip(graph.vs.indices, graph.degree(), graph.betweenness(), graph.transitivity_local_undirected())
+        for node, degree, betweenness, clustering_coeff in (
+            zip(graph.vs, graph.degree(), graph.betweenness(), graph.transitivity_local_undirected())
         )
     ]
 
     edges = [
         {
             'data': {
-                'source': e.source,
-                'target': e.target,
+                'source': e.source + 1,
+                'target': e.target + 1,
             }
         }
         for e in graph.es
@@ -105,7 +106,6 @@ def get_graph_statistics(graph):
 
 
 def get_network_info(network_name, graph):
-    print(graph.is_directed())
     return {
         'Network name:': network_name,
         'Size:': str(graph.vcount()) + ' vertices',
