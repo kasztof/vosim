@@ -17,14 +17,17 @@ def register_callbacks(app, stylesheet):
                    Output('layout-tab', 'disabled'),
                    Output('simulation-tab', 'disabled'),
                    Output('statistics-tab', 'disabled')],
-                  [Input('upload-data', 'contents'),
+                  [Input('load-upload-network', 'n_clicks'),
                    Input('load-konect-network', 'n_clicks')],
-                  [State('konect-networks-dropdown', 'value')])
-    def load_network(upload_content, n_clicks, konect_network_name):
+                  [State('upload-data', 'contents'),
+                   State('konect-networks-dropdown', 'value'),
+                   State('is-directed-checkbox', 'value')])
+    def load_network(load_data_button, n_clicks, upload_content, konect_network_name, is_directed):
         graph = None
 
-        if upload_content is not None:
-            graph = get_graph(upload_content)
+        if upload_content is not None and load_data_button !=0 and load_data_button is not None:
+            directed = True if is_directed is not None else False
+            graph = get_graph(upload_content, directed=directed)
         elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
@@ -174,14 +177,28 @@ def register_callbacks(app, stylesheet):
             return [int(node['id'])for node in selected_nodes]
         return []
 
-    @app.callback(Output('modal', 'is_open'),
-                  [Input('open-konect-modal', 'n_clicks'), Input('close-konect-modal', 'n_clicks')],
-                  [State('modal', 'is_open')])
+    @app.callback(Output('computer-upload-modal', 'is_open'),
+                  [Input('open-upload-modal', 'n_clicks'), Input('close-upload-modal', 'n_clicks')],
+                  [State('computer-upload-modal', 'is_open')])
     def toggle_modal(n1, n2, is_open):
         if n1 or n2:
             return not is_open
         return is_open
 
+    @app.callback(Output('modal', 'is_open'),
+                  [Input('open-konect-modal', 'n_clicks'), Input('close-konect-modal', 'n_clicks')],
+                  [State('modal', 'is_open')])
+    def toggle_modal2(n1, n2, is_open):
+        if n1 or n2:
+            return not is_open
+        return is_open
+
+    @app.callback(Output('uploaded-file-name', 'children'),
+                [Input('upload-data', 'filename')])
+    def set_uploaded_filename(filename):
+        if filename is not None:
+            return filename
+        return ''
 
     @app.callback(Output('activations-graph', 'figure'),
                   [Input('start-button', 'n_clicks')],

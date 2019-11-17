@@ -33,18 +33,44 @@ app.layout = html.Div([
                     label='Network',
                     children=[
                         html.H3('Load network'),
-
-                        dcc.Upload(
-                            id='upload-data',
-                            children=[
-                                dbc.Button(
-                                    'Upload from computer',
-                                    color="primary",
-                                    block=True
+                        dbc.Button(
+                            'Upload .csv file',
+                            id='open-upload-modal',
+                            color="primary",
+                            block=True
+                        ),
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader('Select network from KONECT dataset'),
+                                dbc.ModalBody([
+                                    dcc.Upload(
+                                        id='upload-data',
+                                        children=[
+                                            dbc.Button(
+                                                'Upload .csv file',
+                                                color="primary",
+                                                block=True
+                                            ),
+                                        ],
+                                        className='upload-panel',
+                                        multiple=False
+                                    ),
+                                    html.Span(id='uploaded-file-name'),
+                                    dcc.Checklist(
+                                        id='is-directed-checkbox',
+                                        options=[
+                                            {'label': 'Directed', 'value': 'directed'},
+                                        ],
+                                    ) 
+                                ]),
+                                dbc.ModalFooter(
+                                    [
+                                        dbc.Button('Close', id='close-upload-modal', color='danger', outline=True),
+                                        dbc.Button('Load', id='load-upload-network', color='primary')
+                                    ]
                                 ),
                             ],
-                            className='upload-panel',
-                            multiple=False
+                            id="computer-upload-modal",
                         ),
 
                         dbc.Button(
