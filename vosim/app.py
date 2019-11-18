@@ -106,47 +106,58 @@ app.layout = html.Div([
                     label='Simulation',
                     id='simulation-tab',
                     children=[
+                        html.Label('Influence model'),
                         dcc.Dropdown(
                             id='model-dropdown',
                             options=model_options,
                             searchable=False,
                             clearable=False,
-                            placeholder="Select influence model",
+                            placeholder='Select influence model',
+                            value='indcas'
                         ),
 
+                        html.Label('Iterations limit'),
                         dcc.Input(
                             id='depth-limit',
                             placeholder='Depth',
                             type='number',
                             min=1,
-                            step=1
+                            step=1,
+                            value=1,
                         ),
 
+                        html.Label('Treshold'),
                         dcc.Input(
                             id='treshold',
                             placeholder='Treshold',
                             type='number',
                             min=0,
                             max=1,
-                            step=0.05
+                            step=0.05,
                         ),
 
                         html.Div([
-                            html.Label('Initial nodes'),
-                            dcc.Dropdown(
-                                id='initial-nodes-method-dropdown',
-                                options=initial_nodes_method_options,
-                                searchable=False,
-                                clearable=False,
-                            ),
+                            html.Label('Initial nodes selection method'),
 
-                            dcc.Input(
-                                id='initial-nodes-number',
-                                type='number',
-                                min=1,
-                                step=1,
-                                value=1,
-                            ),
+                            html.Div(
+                                id='init-node-selection-container',
+                                children=[
+                                    dcc.Dropdown(
+                                        id='initial-nodes-method-dropdown',
+                                        options=initial_nodes_method_options,
+                                        searchable=False,
+                                        clearable=False,
+                                    ),
+
+                                    dcc.Input(
+                                        id='initial-nodes-number',
+                                        type='number',
+                                        min=1,
+                                        step=1,
+                                        value=1,
+                                    ),
+                                ]
+                            )
                         ]),
 
                         dbc.Button('Start', id='start-button', color='primary'),
