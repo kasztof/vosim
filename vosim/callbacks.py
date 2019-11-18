@@ -29,11 +29,11 @@ def register_callbacks(app, stylesheet):
         graph = None
         network_name = ''
 
-        if upload_content is not None and load_data_button !=0 and load_data_button is not None:
+        if upload_content is not None and load_data_button !=0 and load_data_button is not None: # if load from csv button was clicked
             directed = True if is_directed is not None else False
             graph = get_graph(upload_content, directed=directed)
             network_name = upload_network_name
-        elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None:
+        elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None: # if load from konect was clicked
             kr = reader.KonectReader()
             graph = kr.load(konect_network_name)
             network_name = konect_network_name
@@ -87,7 +87,9 @@ def register_callbacks(app, stylesheet):
                    Output('slider', 'max'),
                    Output('slider', 'marks'),
                    Output('download-link', 'className')],
-                  [Input('start-button', 'n_clicks')],
+                  [Input('start-button', 'n_clicks_timestamp'),
+                   Input('load-upload-network', 'n_clicks_timestamp'),
+                   Input('load-konect-network', 'n_clicks_timestamp')],
                   [State('graph-pickled', 'data'),
                    State('depth-limit', 'value'),
                    State('treshold', 'value'),
@@ -96,8 +98,21 @@ def register_callbacks(app, stylesheet):
                    State('initial-nodes-method-dropdown','value'),
                    State('initial-nodes-number', 'value'),
                    State('download-link', 'className')])
-    def load_activated_nodes(n_clicks, graph_pickled, depth, treshold, model, initial_nodes, init_nodes_method, init_nodes_num, download_link_class):
-        if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None:
+    def load_activated_nodes(start_button_timestamp, load_csv_timestamp, load_konect_timestamp, graph_pickled, depth, treshold, model, initial_nodes, init_nodes_method, init_nodes_num, download_link_class):
+        start_button_timestamp = 0 if start_button_timestamp is None else start_button_timestamp
+        load_csv_timestamp = 0 if load_csv_timestamp is None else load_csv_timestamp
+        load_konect_timestamp = 0 if load_konect_timestamp is None else load_konect_timestamp
+
+        clicked = ''
+
+        if start_button_timestamp > load_csv_timestamp and start_button_timestamp > load_konect_timestamp:
+            clicked = 'start_button'
+        elif load_csv_timestamp > start_button_timestamp and load_csv_timestamp > load_konect_timestamp:
+            clicked = 'load_csv'
+        elif load_konect_timestamp > start_button_timestamp and load_konect_timestamp > load_csv_timestamp:
+            clicked = 'load_konect'
+
+        if clicked == 'start_button' and graph_pickled is not None:
             graph = pickle.loads((graph_pickled.encode()))
 
             if init_nodes_method == 'manual':
@@ -112,7 +127,10 @@ def register_callbacks(app, stylesheet):
             slider_marks = {i: '{}'.format(i) for i in range(len(result))}
 
             return result, slider_value, slider_max, slider_marks, download_link_class.rsplit(' ', 1)[0]
-        return None, 0, 0, {}, download_link_class
+        elif clicked == 'load_csv' or clicked == 'load_konect':
+            return None, 0, 0, {}, 'btn btn-success btn-block disabled'
+        else:
+            return None, 0, 0, {}, download_link_class
     
     @app.callback(Output('initial-nodes-number', 'disabled'),
                   [Input('initial-nodes-method-dropdown', 'value')])
