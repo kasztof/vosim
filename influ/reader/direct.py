@@ -27,6 +27,7 @@ def read_graph(filepath: str, file_format: Optional[str] = None, **kwargs) -> ig
     if 'id' in g.vs.attributes():
         g.vs['origin_id'] = g.vs['id']
     g.vs['id'] = range(1, len(g.vs) + 1)
+    g.vs['calc_id'] = range(0, len(g.vs) + 1)
 
     return merge_edges(g)
 

@@ -50,11 +50,11 @@ def linear_threshold(graph: ig.Graph, initial_ids: List[int], threshold: Optiona
 
         for v in uninfluenced:
             inf_neigh = g.vs.select(g.neighbors(v, mode=ig.IN), influenced=True)
-            es = g.es.select(_target=v['id'], _source_in=inf_neigh['id'])
+            es = g.es.select(_target=v['calc_id'], _source_in=inf_neigh['calc_id'])
 
             if inf_neigh and sum(es['weight']) >= v['treshold']:
                 v['influenced'] = True
-                new_influenced.append(v['id'])
+                new_influenced.append(v['calc_id'])
 
         influenced_ids = influenced_ids + new_influenced
         all_activations.append(influenced_ids)
@@ -85,10 +85,9 @@ def independent_cascade(graph: ig.Graph, initial_ids: List[int], threshold: Opti
     all_activations = [initial_ids]
 
     new_influenced = initial_ids
-    print(initial_ids)
+
     i = 0
     while len(new_influenced) > 0 and i < depth:
-        # print(new_influenced)
         influencers = g.vs.select(new_influenced)
         new_influenced = []
 
@@ -100,7 +99,7 @@ def independent_cascade(graph: ig.Graph, initial_ids: List[int], threshold: Opti
                 assert r is not None
                 if r >= v['treshold']:
                     exposed['influenced'] = True
-                    new_influenced.append(exposed['id'])
+                    new_influenced.append(exposed['calc_id'])
 
             v['retired'] = True
         influenced_ids = influenced_ids + new_influenced
