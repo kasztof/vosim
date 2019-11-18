@@ -30,9 +30,8 @@ app.layout = html.Div([
             id='navigation-tabs',
             children=[
                 dbc.Tab(
-                    label='Network',
+                    label='Load network',
                     children=[
-                        html.H3('Load network'),
                         dbc.Button(
                             'Upload .csv file',
                             id='open-upload-modal',
