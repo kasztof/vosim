@@ -108,15 +108,6 @@ app.layout = html.Div([
                     id='simulation-tab',
                     children=[
                         dcc.Dropdown(
-                            id='layout-dropdown',
-                            options=layout_options,
-                            searchable=False,
-                            clearable=False,
-                            value='cose',
-                            placeholder='Select network layout',
-                        ),
-
-                        dcc.Dropdown(
                             id='model-dropdown',
                             options=model_options,
                             searchable=False,
@@ -168,6 +159,17 @@ app.layout = html.Div([
                     label='Layout',
                     id='layout-tab',
                     children=[
+                        html.Label('Network layout'),
+                        dcc.Dropdown(
+                            id='layout-dropdown',
+                            options=layout_options,
+                            searchable=False,
+                            clearable=False,
+                            value='cose',
+                            placeholder='Select network layout',
+                        ),
+                        
+                        html.Label('Node size'),
                         dcc.Dropdown(
                             id='node-size-dropdown',
                             options=node_size_options,
