@@ -241,6 +241,14 @@ def register_callbacks(app, stylesheet):
             return not is_open
         return is_open
 
+    @app.callback(Output('info-modal', 'is_open'),
+                  [Input('info-button', 'n_clicks'), Input('close-info-button', 'n_clicks')],
+                  [State('info-modal', 'is_open')])
+    def toggle_info_modal(n1, n2, is_open):
+        if n1 or n2:
+            return not is_open
+        return is_open
+
     @app.callback(Output('uploaded-file-name', 'children'),
                 [Input('upload-data', 'filename')])
     def set_uploaded_filename(filename):

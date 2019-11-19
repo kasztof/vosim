@@ -303,7 +303,24 @@ app.layout = html.Div([
                     disabled=True,
                 )
             ]
-        )
+        ),
+        dbc.Button(
+            'User manual',
+            color='info',
+            className='mr-1',
+            id='info-button'
+        ),
+        dbc.Modal(
+            [
+                dbc.ModalHeader('How to use this application?'),
+                dbc.ModalBody('This is the content of the modal'),
+                dbc.ModalFooter(
+                    dbc.Button('Close', id='close-info-button', className='ml-auto')
+                ),
+            ],
+            id='info-modal',
+            size='lg'
+        ),
     ],
         className='right-panel'
     ),
