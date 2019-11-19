@@ -313,7 +313,27 @@ app.layout = html.Div([
         dbc.Modal(
             [
                 dbc.ModalHeader('How to use this application?'),
-                dbc.ModalBody('This is the content of the modal'),
+                dbc.ModalBody([
+                    html.H3('Loading network'),
+                    html.P('You have two options of loading a network:'),
+                    html.Ul([
+                        html.Li('Upload .csv file from your computer - file can have either commas or spaces as separators. The file should contain edges in the following format:'),
+                        html.Pre('source, target, [attributes]'),
+                        html.Li('Select network directly from KONECT datasets - currently 3 datasets are available.')
+                    ]),
+
+                    html.H3('Changing network layout'),
+                    html.P('You can select one of the network layouts under "Layout" tab. You can also change the node size metric. By default, node size on the graph depends on node degree.'),
+
+                    html.H3('Running social influence models'),
+                    html.P('In "Simulation" tab you can select one of the currently available social influence models and set its properties values as well as set the maximum number of model iterations. You can also select one of the methods of selecting initial nodes. If you decide to use the "Manual" method, please select the nodes by clicking on them while holding Ctrl key.'),
+
+                    html.H3('Downloading results'),
+                    html.P('After the simulation is done, you will be able to download the results by clicking "Download activations" on the left side bottom panel. In nth row, the file contains all nodes activated in nth iteration.'),
+                
+                    html.H3('Network statistics'),
+                    html.P('In "Statistics" tab, you can see some informations regarding the currently loaded network such as degree distribution plot, general network metrics or plot of the activated nodes number in iterations for different initial nodes selection methods (This plot contains results of single model run, using given initial nodes selection method. The values here are not related to the simulation results in "Network" tab).')
+                ]),
                 dbc.ModalFooter(
                     dbc.Button('Close', id='close-info-button', className='ml-auto')
                 ),

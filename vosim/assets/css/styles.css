@@ -9,6 +9,10 @@ label {
     margin-bottom: 0;
 }
 
+p, pre {
+    margin-bottom: 0.5rem;
+}
+
 .bottom-slider {
     width: 100%;
     height: 7vh;
