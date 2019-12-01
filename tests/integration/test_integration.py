@@ -15,4 +15,13 @@ def test_page_title(browser):
     url = 'localhost:8050'
     browser.get(url)
     time.sleep(1)
-    assert browser.title == 'Dash'
+    assert browser.title == 'Vosim'
+
+
+def test_disabled_pages(browser):
+    url = 'localhost:8050'
+    browser.get(url)
+    simulation_tab = browser.find_element_by_link_text('Simulation')
+    
+
+    assert 'disabled' in simulation_tab.get_attribute('class')

@@ -23,7 +23,7 @@ with open(PROJECT_ROOT + '/vosim/assets/style.json', 'r') as f:
 
 cyto.load_extra_layouts()
 
-
+app.title = 'Vosim'
 app.layout = html.Div([
     html.Div([
         dbc.Tabs(
