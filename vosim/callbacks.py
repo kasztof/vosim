@@ -182,16 +182,19 @@ def register_callbacks(app, stylesheet):
 
             if graph_pickled is not None:
                 graph = pickle.loads((graph_pickled.encode()))
-                directed_edges = [
-                    {
-                        'selector': '#' + str(e.source + 1) + '-' + str(e.target + 1),
-                        'style': {
-                            'target-arrow-color': 'blue',
-                            'target-arrow-shape': 'triangle',
-                            'arrow-scale': 0.3,
-                        }
-                    } for e in graph.es
-                ]
+                if(graph.is_directed()):
+                    directed_edges = [
+                        {
+                            'selector': '#' + str(e.source + 1) + '-' + str(e.target + 1),
+                            'style': {
+                                'target-arrow-color': 'blue',
+                                'target-arrow-shape': 'triangle',
+                                'arrow-scale': 0.3,
+                            }
+                        } for e in graph.es
+                    ]
+                else:
+                    directed_edges = []
             else:
                 directed_edges = []
 
