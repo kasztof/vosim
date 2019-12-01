@@ -1,5 +1,5 @@
 import os
-from vosim.utils import get_network_from_graph, get_init_nodes, get_degree_distribution_data, get_network_info, get_graph_statistics
+from vosim.utils import get_network_from_graph, get_degree_distribution_data, get_network_info, get_graph_statistics
 from influ.reader import direct
 from conftest import test_data_path
 from igraph import Graph
@@ -7,7 +7,6 @@ from igraph import Graph
 tests_dir =  os.path.abspath(os.path.join(__file__ ,"../.."))
 filename = os.path.join(tests_dir, 'test_data/network.csv')
 test_graph = direct.read_graph(filename, file_format='events', directed=False)
-
 
 def test_get_network_from_graph_undirected(test_data_path):
     correct_result_nodes = [
@@ -95,28 +94,6 @@ def test_get_network_from_graph_undirected(test_data_path):
     response = get_network_from_graph(test_graph)
    
     assert correct_response == response
-
-
-def test_get_init_nodes_by_degree():
-    result = get_init_nodes(test_graph, 'degree', 2)
-    correct_result = [0,1]
-    
-    assert result == correct_result
-
-
-def test_get_init_nodes_by_betweenness():
-    result = get_init_nodes(test_graph, 'betweenness', 2)
-    correct_result = [0,1]
-    
-    assert result == correct_result
-
-
-def test_get_init_nodes_by_clustering_coeff():
-    result = get_init_nodes(test_graph, 'clustering_coeff', 2)
-    correct_result = [2,3]
-    
-    assert result == correct_result
-
 
 def test_get_degree_distribution_data():
     result = get_degree_distribution_data(test_graph)

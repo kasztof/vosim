@@ -9,9 +9,8 @@ from influ.finder.model import independent_cascade, linear_threshold
 def get_konect_network(konect_network_name):
     kr = reader.KonectReader()
     graph = kr.load(konect_network_name)
-    network_name = konect_network_name
 
-    return graph, network_name
+    return graph, konect_network_name
 
 
 def get_graph(content: str, file_format: str = 'events', directed: bool = False):
