@@ -104,6 +104,20 @@ def test_get_init_nodes_by_degree():
     assert result == correct_result
 
 
+def test_get_init_nodes_by_betweenness():
+    result = get_init_nodes(test_graph, 'betweenness', 2)
+    correct_result = [0,1]
+    
+    assert result == correct_result
+
+
+def test_get_init_nodes_by_clustering_coeff():
+    result = get_init_nodes(test_graph, 'clustering_coeff', 2)
+    correct_result = [2,3]
+    
+    assert result == correct_result
+
+
 def test_get_degree_distribution_data():
     result = get_degree_distribution_data(test_graph)
     correct_result = {0: 0, 1: 0, 2: 2, 3: 2}
