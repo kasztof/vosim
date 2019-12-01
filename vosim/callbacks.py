@@ -1,9 +1,9 @@
 from dash.dependencies import Input, Output, State, ClientsideFunction
-from influ import reader
-from vosim.utils import get_graph, get_network_from_graph, get_init_nodes, get_model_result, get_methods_activated_nodes_data, get_degree_distribution_data, get_graph_statistics, get_network_info
+from vosim.utils import get_network_from_graph, get_degree_distribution_data, get_graph_statistics, get_network_info
 import dash_html_components as html
 
 from .options import initial_nodes_method_options
+from .middleware import get_konect_network, get_graph, get_init_nodes, get_model_result, get_methods_activated_nodes_data
 
 import urllib.parse
 import io
@@ -34,9 +34,7 @@ def register_callbacks(app, stylesheet):
             graph = get_graph(upload_content, directed=directed)
             network_name = upload_network_name
         elif n_clicks != 0 and n_clicks is not None and konect_network_name is not None: # if load from konect was clicked
-            kr = reader.KonectReader()
-            graph = kr.load(konect_network_name)
-            network_name = konect_network_name
+            graph, network_name = get_konect_network(konect_network_name)
 
 
         if graph is not None:
@@ -266,8 +264,9 @@ def register_callbacks(app, stylesheet):
                    State('treshold', 'value'),
                    State('data-selected-nodes', 'data'),
                    State('initial-nodes-method-dropdown','value'),
-                   State('initial-nodes-number', 'value')])
-    def generate_statistics(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num):
+                   State('initial-nodes-number', 'value'),
+                   State('model-dropdown', 'value')])
+    def generate_statistics(n_clicks, graph_pickled, depth, treshold, initial_nodes, init_nodes_method, init_nodes_num, model):
         if not n_clicks == 0 and n_clicks is not None and graph_pickled is not None and treshold is not None and depth is not None:
             graph = pickle.loads((graph_pickled.encode()))
 
@@ -276,7 +275,7 @@ def register_callbacks(app, stylesheet):
             if initial_nodes == []:
                 init_nodes_methods.remove('manual')
             
-            activated_nodes_data = get_methods_activated_nodes_data(graph, init_nodes_num, init_nodes_methods, depth, treshold, initial_nodes)
+            activated_nodes_data = get_methods_activated_nodes_data(graph, model, init_nodes_num, init_nodes_methods, depth, treshold, initial_nodes)
 
             activations_figure = {
                 'data': [
