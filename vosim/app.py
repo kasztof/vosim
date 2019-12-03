@@ -230,16 +230,23 @@ app.layout = html.Div([
                 dbc.Tab(
                     label='Network',
                     children=[
-                        cyto.Cytoscape( 
-                            id='cytoscape-elements',
-                            style={'width': '100%', 'height': '85vh'},
-                            layout={
-                                'name': 'cose',
-                                'randomize': True,
-                            },
-                            elements=[],
-                            stylesheet=STYLESHEET
+                        dcc.Loading(
+                            id='loading-network',
+                            className='loading-network-spinner',
+                            fullscreen=True,
+                            children=[
+                                cyto.Cytoscape( 
+                                    id='cytoscape-elements',
+                                    layout={
+                                        'name': 'cose',
+                                        'randomize': True,
+                                    },
+                                    elements=[],
+                                    stylesheet=STYLESHEET
+                                ),
+                            ]
                         ),
+                        
 
                         html.Div([
                             html.Span(
