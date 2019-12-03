@@ -1,3 +1,4 @@
+#!/bin/bash
 app="vosim_app"
 docker stop ${app}
 docker rm ${app}
