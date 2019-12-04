@@ -40,7 +40,7 @@ app.layout = html.Div([
                         ),
                         dbc.Modal(
                             [
-                                dbc.ModalHeader('Select network from KONECT dataset'),
+                                dbc.ModalHeader('Upload CSV file from your computer'),
                                 dbc.ModalBody([
                                     dcc.Upload(
                                         id='upload-data',
