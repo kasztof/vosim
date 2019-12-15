@@ -116,7 +116,7 @@ app.layout = html.Div([
                             value='indcas'
                         ),
 
-                        html.Label('Iterations limit'),
+                        html.Label('Maximum number of iterations'),
                         dcc.Input(
                             id='depth-limit',
                             placeholder='Depth',
@@ -126,10 +126,10 @@ app.layout = html.Div([
                             value=1,
                         ),
 
-                        html.Label('Treshold'),
+                        html.Label('Threshold'),
                         dcc.Input(
                             id='treshold',
-                            placeholder='Treshold',
+                            placeholder='Threshold',
                             type='number',
                             min=0,
                             max=1,
@@ -303,7 +303,7 @@ app.layout = html.Div([
             ]
         ),
         dbc.Button(
-            'User manual',
+            'Quick start guide',
             color='info',
             className='mr-1',
             id='info-button'
@@ -315,7 +315,7 @@ app.layout = html.Div([
                     html.H3('Loading network'),
                     html.P('You have two options of loading a network:'),
                     html.Ul([
-                        html.Li('Upload .csv file from your computer - file can have either commas or spaces as separators. The file should contain edges in the following format:'),
+                        html.Li('Upload .csv file from your computer. The file should contain edges in the following format:'),
                         html.Pre('source, target, [attributes]'),
                         html.Li('Select network directly from KONECT datasets - currently 3 datasets are available.')
                     ]),

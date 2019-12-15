@@ -12,7 +12,7 @@ layout_options = [
 ]
 
 model_options = [
-    {'label': 'Linear Treshold', 'value': 'lintres'},
+    {'label': 'Linear Threshold', 'value': 'lintres'},
     {'label': 'Independent Cascade', 'value': 'indcas'}
 ]
 
