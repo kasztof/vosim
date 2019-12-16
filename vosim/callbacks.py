@@ -114,7 +114,10 @@ def register_callbacks(app, stylesheet):
             graph = pickle.loads((graph_pickled.encode()))
 
             if init_nodes_method == 'manual':
-                init_nodes = initial_nodes
+                new_initial = []
+                for node in initial_nodes:
+                    new_initial.append(node-1)
+                init_nodes = new_initial
             else:
                 init_nodes = get_init_nodes(graph, init_nodes_method, init_nodes_num)
 
