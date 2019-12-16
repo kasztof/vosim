@@ -311,8 +311,9 @@ def register_callbacks(app, stylesheet):
         if activations_data is not None:
             result = io.StringIO()
             writer = csv.writer(result)
-            for list in activations_data:
-                writer.writerow(list)
+            for node_list in activations_data:
+                new_list = [node + 1 for node in node_list]
+                writer.writerow(new_list)
             csv_string = 'data:text/csv;charset=utf-8,' + urllib.parse.quote(result.getvalue())
             return csv_string
         else:
